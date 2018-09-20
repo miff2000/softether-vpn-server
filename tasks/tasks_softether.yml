@@ -205,51 +205,51 @@
     - softether
     - config
 
-## - name: SoftEther | Check configuration
-#   shell: ./vpncmd localhost /tools /IN:configs/check
-#   args:
-#     chdir: "{{ softether_home }}"
-#   become: yes
-#   tags:
-#     - softether
+ - name: SoftEther | Check configuration
+  shell: ./vpncmd localhost /tools /IN:configs/check
+  args:
+    chdir: "{{ softether_home }}"
+  become: yes
+  tags:
+    - softether
 
-# - name: SoftEther | Proceed with setup
-#   shell: ./vpncmd localhost /server /IN:{{ softether_config_script }}
-#   args:
-#     chdir: "{{ softether_home }}"
-#   become: yes
-#   tags:
-#     - softether
+- name: SoftEther | Proceed with setup
+  shell: ./vpncmd localhost /server /IN:{{ softether_config_script }}
+  args:
+    chdir: "{{ softether_home }}"
+  become: yes
+  tags:
+    - softether
 
-# - name: SoftEther | Restart service
-#   service:
-#     name: "vpnserver"
-#     enabled: yes
-#     state: started
-#   become: yes
-#   tags:
-#     - softether
+- name: SoftEther | Restart service
+  service:
+    name: "vpnserver"
+    enabled: yes
+    state: started
+  become: yes
+  tags:
+    - softether
 
-# - debug: msg="Copy artifacts as scp {{ ansible_ssh_user | default('youruser') }}@{{ ansible_ssh_host | default('yourhost') }}:{{ softether_home }}/generated/* ."
+- debug: msg="Copy artifacts as scp {{ ansible_ssh_user | default('youruser') }}@{{ ansible_ssh_host | default('yourhost') }}:{{ softether_home }}/generated/* ."
 
-# - name: Download SoftEther Artifacts
-#   synchronize:
-#     mode: pull
-#     src: "{{ softether_home }}/generated"
-#     dest: "{{ playbook_dir }}/generated"
-#   ignore_errors: yes
-#   become: yes
-#   tags:
-#     - openvpn
+- name: Download SoftEther Artifacts
+  synchronize:
+    mode: pull
+    src: "{{ softether_home }}/generated"
+    dest: "{{ playbook_dir }}"
+  ignore_errors: yes
+  become: yes
+  tags:
+    - openvpn
 
-# - name: SoftEther | Add {{ softether_home }} to PATH
-#   lineinfile:
-#     dest: /etc/profile.d/softether.sh
-#     state: present
-#     create: yes
-#     regexp: '^export PATH'
-#     line: 'export PATH=$PATH:{{ softether_home }}'
-#   become: yes
-#   when: option_add_to_path
-#   tags:
-#     - softether
+- name: SoftEther | Add {{ softether_home }} to PATH
+  lineinfile:
+    dest: /etc/profile.d/softether.sh
+    state: present
+    create: yes
+    regexp: '^export PATH'
+    line: 'export PATH=$PATH:{{ softether_home }}'
+  become: yes
+  when: option_add_to_path
+  tags:
+    - softether
