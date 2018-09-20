@@ -1,16 +1,21 @@
-sa-vpn-softether
+## !OUT OF DATE!
+
+# softether-vpn-server
 ================
 
 [![Build Status](https://travis-ci.org/softasap/sa-vpn-softether.svg?branch=master)](https://travis-ci.org/softasap/sa-vpn-softether)
 
+## Usage
+Check `box-example` for a rough guide.
 
-Example of use: check box-example
+Full config options are in [defaults/main.yml](defaults/main.yml). In most cases you can leave these defaults as-is, although things
+like `softether_vpn_users` should really be updated.
 
-Possible configuration:
+Example configuration (put this in `vars/vars.yml`):
 ```YAML
-
-softether_option_securenat: true
-softether_option_bridge: false
+softether_option_securenat: True
+softether_option_bridge: False
+option_reset_softether_config: True
 
 softether_location: /opt
 softether_home: "{{softether_location}}/vpnserver"
@@ -19,7 +24,7 @@ softether_fqdn: "{{ansible_host}}"
 
 
 # ============== IPSEC ===================
-softether_option_ipsec: true
+softether_option_ipsec: True
 softether_ipsec_l2tp: yes
 softether_ipsec_l2tpraw: yes
 softether_ipsec_etherip: no
@@ -28,7 +33,7 @@ softether_ipsec_presharedkey: "zzz"
 
 
 # ============== OPENVPN ===================
-softether_option_openvpn: true
+softether_option_openvpn: True
 softether_openvpn_port: 1194
 softether_openvpn_config: "{{softether_home}}/generated/openvpn_config.zip"
 # /============== OPENVPN ===================
@@ -58,9 +63,7 @@ softether_sysctl_conf_lines:
 ```
 
 Simple:
-
 ```YAML
-
 vars:
      - my_softether_vpn_users:
         - {
@@ -73,13 +76,11 @@ vars:
 roles:
 
      - {
-         role: "sa-vpn-softether",
+         role: "miff2000.softether-vpn-server",
          softether_vpn_users: "{{my_softether_vpn_users}}",
          softether_ipsec_presharedkey: "{{my_softether_ipsec_presharedkey}}"
        }
-
 ```
-
 
 Advanced:
 
@@ -96,7 +97,7 @@ vars:
 
 roles:
      - {
-         role: "sa-vpn-softether",
+         role: "miff2000.softether-vpn-server",
 
          softether_vpn_users: "{{my_softether_vpn_users}}",
          softether_ipsec_presharedkey: "{{my_softether_ipsec_presharedkey}}"
@@ -132,30 +133,22 @@ roles:
 
 ```
 
-If you ever needed to setup vpnserver on your own on later stage:  
-
-```
-  softether_init_script: scenarios/dummy
-```
-
-
 Usage with ansible galaxy workflow
 ----------------------------------
 
-If you installed the sa-vpn-softether role using the command
-
+If you installed the softether-vpn-server role using the command
 
 `
-   ansible-galaxy install softasap.sa-vpn-softether
+   ansible-galaxy install miff2000.softether-vpn-server
 `
 
-the role will be available in the folder library/softasap.sa-vpn-softether
+the role will be available in the folder library/miff2000.softether-vpn-server
 Please adjust the path accordingly.
 
 ```YAML
 
      - {
-         role: "softasap.sa-vpn-softether"
+         role: "miff2000.softether-vpn-server"
        }
 
 ```
@@ -165,10 +158,9 @@ Please adjust the path accordingly.
 Connecting to OpenVPN from client box
 =====================================
 
-If you executed last step of play, you have now cer file for ipsec + zip with openvpn configuration.
+If you executed last step of play, you have now `cert.cer` file for IPSEC + zip with OpenVPN configuration.
 
-Once unpacked, ensure you have GUI ready for openvpn. If menu "Import saved vpn configuration" missing, proceed with
-
+Once unpacked, ensure you have GUI ready for OpenVPN. If menu "Import saved VPN configuration" missing, proceed with:
 
 ```bash
 sudo apt install network-manager-openvpn network-manager-openvpn-gnome network-manager-pptp network-manager-vpnc
@@ -178,11 +170,10 @@ After logout/login or reboot you will have menu option "Import saved vpn configu
 
 Import file named `yourhostname_l3.ovpn`
 
-use your `user@vpn` , for example `test@vpn` followed by password, like `test` ;
+Use your `user@vpn` ($user@$hubname format), for example `test@vpn` followed by password, like `test`.
 If you have only one hub created, than you can use only username.
 
-
-To troubleshoot you might use interactive session native ovpn client, like
+To troubleshoot you might use interactive session native OpenVPN client, like this:
 
 `sudo openvpn --config my.ovpn`
 
