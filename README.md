@@ -1,7 +1,6 @@
 ## !OUT OF DATE!
 
 # softether-vpn-server
-================
 
 [![Build Status](https://travis-ci.org/softasap/sa-vpn-softether.svg?branch=master)](https://travis-ci.org/softasap/sa-vpn-softether)
 
@@ -11,7 +10,7 @@ Check `box-example` for a rough guide.
 Full config options are in [defaults/main.yml](defaults/main.yml). In most cases you can leave these defaults as-is, although things
 like `softether_vpn_users` should really be updated.
 
-Example configuration (put this in `vars/vars.yml`):
+### Example configuration (put this in `vars/vars.yml`):
 ```YAML
 softether_option_securenat: True
 softether_option_bridge: False
@@ -62,7 +61,7 @@ softether_sysctl_conf_lines:
 
 ```
 
-Simple:
+### Simple:
 ```YAML
 vars:
      - my_softether_vpn_users:
@@ -82,7 +81,7 @@ roles:
        }
 ```
 
-Advanced:
+### Advanced:
 
 ```YAML
 
