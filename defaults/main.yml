@@ -12,6 +12,9 @@ option_add_to_path: False
 # This will wipe out any existing config in the VPN server, so be careful
 option_reset_softether_config: True
 
+# This will force new binaries to be created
+option_build_new_binaries: True
+
 # This will clean up the downloaded source zip and build files
 # Useful to set False for debugging
 option_cleanup_old_files: True

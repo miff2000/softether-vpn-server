@@ -58,98 +58,97 @@
   when: not vpnserver_present.stat.exists
   tags:
     - softether
+- block:
+  - name: SoftEther | Download distribution
+    get_url:
+      url: "{{ softether_binary_url }}"
+      dest: "{{ binary_build_path }}/softether.tar.gz"
+    become: yes
+    tags:
+      - softether
 
-- name: SoftEther | Download distribution
-  get_url:
-    url: "{{ softether_binary_url }}"
-    dest: "{{ binary_build_path }}/softether.tar.gz"
-  become: yes
-  tags:
-    - softether
+  - name: SoftEther | Unarchive
+    unarchive:
+      src: "{{ binary_build_path }}/softether.tar.gz"
+      dest: "{{ binary_build_path }}"
+      remote_src: yes
+    become: yes
+    tags:
+      - softether
 
-- name: SoftEther | Unarchive
-  unarchive:
-    src: "{{ binary_build_path }}/softether.tar.gz"
-    dest: "{{ binary_build_path }}"
-    remote_src: yes
-  when: not vpnserver_present.stat.exists
-  become: yes
-  tags:
-    - softether
+  - name: SoftEther | Clean up downloaded file
+    file:
+      path: "{{ binary_build_path }}/softether.tar.gz"
+      state: absent
+    when: option_cleanup_old_files
 
-- name: SoftEther | Clean up downloaded file
-  file:
-    path: "{{ binary_build_path }}/softether.tar.gz"
-    state: absent
-  when: option_cleanup_old_files
+  - name: SoftEther | Make binary from source. 'yes 1' accepts the EULA
+    shell: yes 1 | make
+    args:
+      chdir: "{{ binary_build_path }}/vpnserver"
+    tags:
+      - softether
 
-- name: SoftEther | Make binary from source. 'yes 1' accepts the EULA
-  shell: yes 1 | make
-  when: not vpnserver_present.stat.exists
-  args:
-    chdir: "{{ binary_build_path }}/vpnserver"
-  tags:
-    - softether
+  - name: SoftEther | Copy files into place
+    copy:
+      src: "{{ binary_build_path }}/vpnserver/{{ item }}"
+      dest: "{{ softether_home }}/{{ item }}"
+      remote_src: yes
+    with_items:
+      - vpnserver
+      - vpncmd
+      - lang.config
+      - hamcore.se2
 
-- name: SoftEther | Copy files into place
-  copy:
-    src: "{{ binary_build_path }}/vpnserver/{{ item }}"
-    dest: "{{ softether_home }}/{{ item }}"
-    remote_src: yes
-  with_items:
-    - vpnserver
-    - vpncmd
-    - lang.config
-    - hamcore.se2
+  - name: SoftEther | Set binary permissions (executable)
+    file:
+      path: "{{ softether_home }}/{{ item }}"
+      mode: 0744
+    with_items:
+      - vpnserver
+      - vpncmd
 
-- name: SoftEther | Set binary permissions (executable)
-  file:
-    path: "{{ softether_home }}/{{ item }}"
-    mode: 0744
-  with_items:
-    - vpnserver
-    - vpncmd
+  - name: SoftEther | Clean up build files
+    file:
+      path: "{{ binary_build_path }}/vpnserver"
+      state: absent
+    when: option_cleanup_old_files
 
-- name: SoftEther | Clean up build files
-  file:
-    path: "{{ binary_build_path }}/vpnserver"
-    state: absent
-  when: option_cleanup_old_files
+  - name: SoftEther | Configure lang.config
+    lineinfile:
+      dest: "{{ softether_home }}/lang.config"
+      regexp: ^(en|ja|cn)$
+      line: "{{ softether_lang }}"
+      create: yes
+    become: yes
+    tags:
+      - softether
 
-- name: SoftEther | Configure lang.config
-  lineinfile:
-    dest: "{{ softether_home }}/lang.config"
-    regexp: ^(en|ja|cn)$
-    line: "{{ softether_lang }}"
-    create: yes
-  become: yes
-  tags:
-    - softether
+  - name: SoftEther | Install init script
+    template:
+      src: "{{ role_dir }}/templates/startup/softether.init.j2"
+      dest: /etc/init.d/softether
+      mode: 0755
+    when: upstart_system == "upstart"
+    become: yes
+    tags:
+      - softether
 
-- name: SoftEther | Install init script
-  template:
-    src: "{{ role_dir }}/templates/startup/softether.init.j2"
-    dest: /etc/init.d/softether
-    mode: 0755
-  when: upstart_system == "upstart"
-  become: yes
-  tags:
-    - softether
+  - name: SoftEther | Install init script
+    template:
+      src: "{{ role_dir }}/templates/startup/softether.service.j2"
+      dest: /etc/systemd/system/softether.service
+      mode: 0755
+    when: upstart_system == "systemd"
+    become: yes
+    tags:
+      - softether
 
-- name: SoftEther | Install init script
-  template:
-    src: "{{ role_dir }}/templates/startup/softether.service.j2"
-    dest: /etc/systemd/system/softether.service
-    mode: 0755
-  when: upstart_system == "systemd"
-  become: yes
-  tags:
-    - softether
-
-- name: SoftEther | Reload systemctl
-  systemd:
-    daemon_reload: yes
-  when: upstart_system == "systemd"
+  - name: SoftEther | Reload systemctl
+    systemd:
+      daemon_reload: yes
+    when: upstart_system == "systemd"
+  when: option_build_new_binaries
 
 - name: SoftEther | Stop SoftEther
   service:
@@ -205,13 +204,14 @@
     - softether
     - config
 
- - name: SoftEther | Check configuration
+- name: SoftEther | Check configuration
   shell: ./vpncmd localhost /tools /IN:configs/check
   args:
     chdir: "{{ softether_home }}"
   become: yes
   tags:
     - softether
+    - config
 
 - name: SoftEther | Proceed with setup
   shell: ./vpncmd localhost /server /IN:{{ softether_config_script }}
@@ -223,7 +223,7 @@
 
 - name: SoftEther | Restart service
   service:
-    name: "vpnserver"
+    name: softether
     enabled: yes
     state: started
   become: yes
