@@ -2,196 +2,254 @@
 # tasks file for sa-vpn-softether
 
 - name: SoftEther | Check vpnserver presence
-  command: test -x {{softether_home}}/vpnserver
+  stat:
+    path: "{{ softether_home }}/vpnserver"
   ignore_errors: yes
   register: vpnserver_present
   tags:
       - softether
 
 - block:
-
   - name: SoftEther | Define package dependencies (Debian Family)
     set_fact:
       packages:
         - make
         - gcc
         - libssl-dev
-    when: vpnserver_present | failed
+    when: not vpnserver_present.stat.exists
     tags:
         - softether
-
   when: ansible_os_family == "Debian"
 
 - block:
-
   - name: SoftEther | Define package dependencies (RedHat Family)
     set_fact:
       packages:
         - make
         - gcc
         - binutils
-    when: vpnserver_present | failed
+        - zlib
+        - openssl
+        - readline
+        - ncurses
+        - rsync
+    when: not vpnserver_present.stat.exists
     tags:
         - softether
-
   when: ansible_os_family == "RedHat"
 
 - name: SoftEther | Install package dependencies
-  package: pkg="{{item}}"
-  with_items: "{{packages}}"
+  package:
+    pkg: "{{ item }}"
+  with_items: "{{ packages }}"
   become: yes
-  when: vpnserver_present | failed
+  when: not vpnserver_present.stat.exists
   tags:
     - softether
 
-- name: SoftEther | allow to reenter make process - reset folder
-  file: path="{{softether_home}}" state="absent"
+- name: SoftEther | Ensure 'configs' and 'generated' directories exist
+  file:
+    path: "{{ softether_home }}/{{ item }}"
+    state: directory
   become: yes
-  when: vpnserver_present | failed
+  with_items:
+    - configs
+    - generated
+  when: not vpnserver_present.stat.exists
   tags:
     - softether
-
-- name: SoftEther | Ensure target directory exists
-  file: path="{{softether_home}}" state="directory"
-  become: yes
-  when: vpnserver_present | failed
-  tags:
-    - softether
-
-- name: SoftEther | Ensure scenarios directory exists
-  file: path="{{softether_home}}/scenarios" state="directory"
-  become: yes
-  when: vpnserver_present | failed
-  tags:
-    - softether
-
-- name: SoftEther | Ensure scenarios directory exists
-  file: path="{{softether_home}}/generated" state="directory"
-  become: yes
-  when: vpnserver_present | failed
-  tags:
-    - softether
-
 
 - name: SoftEther | Download distribution
-  get_url: url="http://www.softether-download.com/files/softether/v4.20-9608-rtm-2016.04.17-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.20-9608-rtm-2016.04.17-linux-x64-64bit.tar.gz" dest="/tmp/softether.tar.gz"
+  get_url:
+    url: "{{ softether_binary_url }}"
+    dest: "{{ binary_build_path }}/softether.tar.gz"
   become: yes
   tags:
     - softether
 
-
-- name: SoftEther | unarchive
-#  shell: "tar -xzf /tmp/softether.tar.gz -C {{softether_home}}"
-  unarchive: src="/tmp/softether.tar.gz" dest="{{softether_location}}" remote_src=yes
-  when: vpnserver_present | failed
+- name: SoftEther | Unarchive
+  unarchive:
+    src: "{{ binary_build_path }}/softether.tar.gz"
+    dest: "{{ binary_build_path }}"
+    remote_src: yes
+  when: not vpnserver_present.stat.exists
   become: yes
   tags:
     - softether
 
-- name: SoftEther | make
+- name: SoftEther | Clean up downloaded file
+  file:
+    path: "{{ binary_build_path }}/softether.tar.gz"
+    state: absent
+  when: option_cleanup_old_files
+
+- name: SoftEther | Make binary from source. 'yes 1' accepts the EULA
   shell: yes 1 | make
-  when: vpnserver_present | failed
+  when: not vpnserver_present.stat.exists
   args:
-    chdir: "{{softether_home}}"
+    chdir: "{{ binary_build_path }}/vpnserver"
   tags:
     - softether
 
+- name: SoftEther | Copy files into place
+  copy:
+    src: "{{ binary_build_path }}/vpnserver/{{ item }}"
+    dest: "{{ softether_home }}/{{ item }}"
+    remote_src: yes
+  with_items:
+    - vpnserver
+    - vpncmd
+    - lang.config
+    - hamcore.se2
 
-- name: SoftEther | configure lang.config
-  lineinfile:  dest="{{softether_home}}/lang.config" regexp=^(en|ja|cn)$  line={{ softether_lang }} create=yes
+- name: SoftEther | Set binary permissions (executable)
+  file:
+    path: "{{ softether_home }}/{{ item }}"
+    mode: 0744
+  with_items:
+    - vpnserver
+    - vpncmd
+
+- name: SoftEther | Clean up build files
+  file:
+    path: "{{ binary_build_path }}/vpnserver"
+    state: absent
+  when: option_cleanup_old_files
+
+- name: SoftEther | Configure lang.config
+  lineinfile:
+    dest: "{{ softether_home }}/lang.config"
+    regexp: ^(en|ja|cn)$
+    line: "{{ softether_lang }}"
+    create: yes
   become: yes
   tags:
     - softether
 
-- name: SoftEther | install init script
-  template: src="{{role_dir}}/templates/startup/vpnserver.init.j2"  dest=/etc/init.d/vpnserver  mode=0755
+- name: SoftEther | Install init script
+  template:
+    src: "{{ role_dir }}/templates/startup/softether.init.j2"
+    dest: /etc/init.d/softether
+    mode: 0755
   when: upstart_system == "upstart"
   become: yes
   tags:
     - softether
 
-- name: SoftEther | install init script
-  template: src="{{role_dir}}/templates/startup/vpnserver.service.j2"  dest=/etc/systemd/system/vpnserver.service  mode=0755
+- name: SoftEther | Install init script
+  template:
+    src: "{{ role_dir }}/templates/startup/softether.service.j2"
+    dest: /etc/systemd/system/softether.service
+    mode: 0755
   when: upstart_system == "systemd"
   become: yes
   tags:
     - softether
 
-- name: SoftEther | Reset configuration (1/4)
-  service: name="vpnserver" enabled=yes  state=stopped
+- name: SoftEther | Reload systemctl
+  systemd:
+    daemon_reload: yes
+  when: upstart_system == "systemd"
+
+- name: SoftEther | Stop SoftEther
+  service:
+    name: softether
+    enabled: yes
+    state: stopped
+  when: option_reset_softether_config
   become: yes
   tags:
     - softether
 
-- name: SoftEther | Reset configuration (2/4)
-  file: path="{{softether_home}}/vpn_server.config" state="absent"
+- name: SoftEther | Reset VPN server configuration
+  file:
+    path: "{{ softether_home }}/vpn_server.config"
+    state: absent
+  when: option_reset_softether_config
   become: yes
   tags:
     - softether
 
-- name: SoftEther | Keys in sysctl.conf (3/4)
-  sysctl: name={{item.name}} value={{item.value}} ignoreerrors=yes state={{item.state | default('present')}} reload="yes"
-  with_items: "{{ softether_sysctl_conf_lines | default()}}"
+- name: SoftEther | Set keys in sysctl.conf
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    ignoreerrors: yes
+    state: "{{ item.state | default('present') }}"
+    reload: "yes"
+  with_items: "{{ softether_sysctl_conf_lines | default() }}"
+  when: option_reset_softether_config
   become: yes
   tags:
     - softether
 
-- name: SoftEther | Reset configuration (4/4)
-  service: name="vpnserver" enabled=yes  state=started
+- name: SoftEther | Start SoftEther
+  service:
+    name: softether
+    enabled: yes
+    state: started
+  when: option_reset_softether_config
   become: yes
   tags:
     - softether
-
 
 - name: SoftEther | Template unattended setup (builtin)
-  template: src="{{role_dir}}/templates/scenarios/{{item}}" dest="{{softether_home}}/scenarios/{{item}}"
+  template:
+    src: "{{ role_dir }}/templates/configs/{{ item }}"
+    dest: "{{ softether_home }}/configs/{{ item }}"
   with_items:
     - create_hub
     - check
   become: yes
   tags:
     - softether
+    - config
 
-- name: SoftEther | Check configuration
-  shell: ./vpncmd localhost /tools /IN:scenarios/check
-  args:
-    chdir: "{{softether_home}}"
-  become: yes
-  tags:
-    - softether
+## - name: SoftEther | Check configuration
+#   shell: ./vpncmd localhost /tools /IN:configs/check
+#   args:
+#     chdir: "{{ softether_home }}"
+#   become: yes
+#   tags:
+#     - softether
 
-- name: SoftEther | Proceed with setup
-  shell: ./vpncmd localhost /server /IN:{{softether_init_script}}
-  args:
-    chdir: "{{softether_home}}"
-  become: yes
-  tags:
-    - softether
+# - name: SoftEther | Proceed with setup
+#   shell: ./vpncmd localhost /server /IN:{{ softether_config_script }}
+#   args:
+#     chdir: "{{ softether_home }}"
+#   become: yes
+#   tags:
+#     - softether
 
-- name: SoftEther | Restart service
-  service: name="vpnserver" enabled=yes  state=started
-  become: yes
-  tags:
-    - softether
+# - name: SoftEther | Restart service
+#   service:
+#     name: "vpnserver"
+#     enabled: yes
+#     state: started
+#   become: yes
+#   tags:
+#     - softether
 
+# - debug: msg="Copy artifacts as scp {{ ansible_ssh_user | default('youruser') }}@{{ ansible_ssh_host | default('yourhost') }}:{{ softether_home }}/generated/* ."
 
-- debug: msg="Copy artifacts as scp {{ansible_ssh_user | default('youruser')}}@{{ansible_ssh_host | default('yourhost')}}:{{softether_home}}/generated/* ."
+# - name: Download SoftEther Artifacts
+#   synchronize:
+#     mode: pull
+#     src: "{{ softether_home }}/generated"
+#     dest: "{{ playbook_dir }}/generated"
+#   ignore_errors: yes
+#   become: yes
+#   tags:
+#     - openvpn
 
-- name: Download SoftEther Artifacts
-  synchronize: mode=pull src="{{softether_home}}/generated" dest="{{playbook_dir}}/generated"
-  ignore_errors: yes
-  become: yes
-  tags:
-    - openvpn
-
-- name: SoftEther | Add {{softether_home}} to path
-  lineinfile:
-    dest: /etc/profile.d/softether.sh
-    state: present
-    create: yes
-    regexp: '^export PATH'
-    line: 'export PATH=$PATH:{{softether_home}}'
-  become: yes
-  when: option_add_to_path
-  tags:
-    - softether
+# - name: SoftEther | Add {{ softether_home }} to PATH
+#   lineinfile:
+#     dest: /etc/profile.d/softether.sh
+#     state: present
+#     create: yes
+#     regexp: '^export PATH'
+#     line: 'export PATH=$PATH:{{ softether_home }}'
+#   become: yes
+#   when: option_add_to_path
+#   tags:
+#     - softether
