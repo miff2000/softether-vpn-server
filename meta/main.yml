@@ -1,8 +1,8 @@
 ---
 galaxy_info:
-  author: vyacheslav voronenko
-  description: softether multi protocol vpn
-  company: http://www.voronenko.info/
+  author: Matt Calvert
+  description: SoftEther Multi-Protocol VPN Server. Credits to Vyacheslav Voronenko who wrote the original this was forked from
+  company: http://miff2000.github.io
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
   # issue_tracker_url: http://example.com/issue/tracker
@@ -14,7 +14,7 @@ galaxy_info:
   # - Apache
   # - CC-BY
   license: MIT
-  min_ansible_version: 2.2.0.0
+  min_ansible_version: 2.6.0.0
   #
   # Below are all platforms currently available. Just uncomment
   # the ones that apply to your role. If you don't see your
@@ -34,15 +34,19 @@ galaxy_info:
         - 7
 
   galaxy_tags:
+    - SoftEther
     - softether
+    - VPN
     - vpn
     - L2TP
     - IPsec
     - OpenVPN 
     - MS-SSTP
     - L2TPv3
-    - server
-    - ubuntu
+    - Server
+    - Ubuntu
+    - CentOS
+    - Fedora
   #platforms:
   #- name: EL
   #  versions:
@@ -170,7 +174,7 @@ galaxy_info:
   # Below are all categories currently available. Just as with
   # the platforms above, uncomment those that apply to your role.
   #
-  #categories:
+  categories:
   #- cloud
   #- cloud:ec2
   #- cloud:gce
@@ -181,7 +185,7 @@ galaxy_info:
   #- database:sql
   #- development
   #- monitoring
-  #- networking
+  - networking
   #- packaging
   #- system
   #- web
