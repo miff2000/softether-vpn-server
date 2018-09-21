@@ -19,7 +19,7 @@
 
   roles:
      - {
-        role: "sa-vpn-softether"
+        role: "softether-vpn-server"
        }
 
   tasks:
