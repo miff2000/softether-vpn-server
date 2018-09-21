@@ -11,8 +11,12 @@ SecureNatEnable
 SecureNatDisable
 {% endif %}
 
+{% if option_setup_letsencrypt %}
+ServerCertSet /LOADCERT:/etc/letsencrypt/live/{{ softether_fqdn }}/fullchain.pem /LOADKEY:/etc/letsencrypt/live/{{ softether_fqdn }}/privkey.pem
+{% else %}
 ServerCertRegenerate {{ softether_fqdn }}
 ServerCertGet ./generated/cert.cer
+{% endif %}
 
 
 {% if softether_option_local_bridge %}
@@ -20,7 +24,7 @@ BridgeCreate {{ softether_hub_name }} /DEVICE:{{ softether_bridge_device }} /TAP
 {% endif %}
 
 {% for vpnuser in softether_vpn_users %}
-UserCreate {{ vpnuser.name }} /GROUP:none /REALNAME:none /NOTE:none
+UserCreate {{ vpnuser.name }} /GROUP:none /REALNAME:"{{ vpnuser.realname if vpnuser.realname is defined else "NONE"}}" /NOTE:none
 UserPasswordSet {{ vpnuser.name }} /PASSWORD:{{ vpnuser.password }}
 {% endfor %}
 

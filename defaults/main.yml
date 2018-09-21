@@ -4,9 +4,8 @@
 # Defaults file for softether-vpn-server
 # =====================================/
 
-role_dir: "{{ role_path }}"
 
-# Set true to add {{softether_home}} to PATH env via /etc/profile.d/softether.sh
+# Set true to add {{ softether_bin_dir }} to PATH env via /etc/profile.d/softether.sh
 option_add_to_path: False
 
 # This will wipe out any existing config in the VPN server, so be careful
@@ -18,6 +17,10 @@ option_build_new_binaries: True
 # This will clean up the downloaded source zip and build files
 # Useful to set False for debugging
 option_cleanup_old_files: True
+
+# This will set up letsencrypt certificates on the server. {{ softether_fqdn }} will be used
+# Otherwise self-signed certs will be used
+option_setup_letsencrypt: True
 
 # As we are downloading source code and compiling to a binary, this overides the path to build the binaries in
 binary_build_path: /tmp
@@ -54,13 +57,18 @@ softether_push_routes:
     netmask: 255.255.255.0
     gateway: 192.168.4.1
 
+# FQDN to use for SSL certificates
+softether_fqdn: "{{ ansible_host }}"
+
 ### Default settings that can be overridden
 softether_hub_name: vpn
 softether_hub_password: "S3cureP4$$"
 
-softether_home: "/opt/softether"
+# Change this to set a different binaries directory
+softether_bin_dir: "/opt/softether"
+
+# Set the language of the UI. Options are 'ja' (Japanese), 'en' (English), 'cn' (Simplified Chinese)
 softether_lang: en
-softether_fqdn: "{{ansible_host}}"
 
 # Enable / Disable SSTP
 softether_option_sstp: true
@@ -75,7 +83,7 @@ softether_ipsec_presharedkey: "[1KH;+r-X#cvhpv7Y6=#;[{u"
 # Enable / Disable OpenVPN, and configs
 softether_option_openvpn: true
 softether_openvpn_port: 1194
-softether_openvpn_config: "{{softether_home}}/generated/openvpn_config.zip"
+softether_openvpn_config: "{{softether_bin_dir}}/generated/openvpn_config.zip"
 
 # Bridge defaults
 softether_bridge_device: soft
@@ -84,6 +92,7 @@ softether_bridge_tap: no
 # VPN Users section. Please DO override these! :)
 softether_vpn_users:
   - {
+      realname: User 1,
       name: user1,
       password: U4er1Pa55
     }
@@ -100,4 +109,4 @@ softether_sysctl_conf_lines:
     }
 
 # VPN config script. This is a Jinja2 template file which uses many of the options above
-softether_config_script: scenarios/create_hub
+softether_config_script: configs/create_hub
