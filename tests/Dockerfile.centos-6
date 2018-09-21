@@ -1,6 +1,6 @@
 
-FROM centos:6.8
-RUN rpm -iUvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+FROM centos:6
+RUN rpm -iUvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
 
 # Install Ansible
 RUN yum -y install ansible
