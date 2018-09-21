@@ -2,7 +2,7 @@
 
 # softether-vpn-server
 
-[![Build Status](https://travis-ci.org/softasap/sa-vpn-softether.svg?branch=master)](https://travis-ci.org/softasap/sa-vpn-softether)
+[![Build Status](https://travis-ci.org/miff2000/softether-vpn-server.svg?branch=master)](https://travis-ci.org/miff2000/softether-vpn-server)
 
 ## Usage
 Check `box-example` for a rough guide.
@@ -17,7 +17,7 @@ softether_option_bridge: False
 option_reset_softether_config: True
 
 softether_location: /opt
-softether_home: "{{softether_location}}/vpnserver"
+softether_bin_dir: "{{softether_location}}/vpnserver"
 softether_lang: en
 softether_fqdn: "{{ansible_host}}"
 
@@ -34,7 +34,7 @@ softether_ipsec_presharedkey: "zzz"
 # ============== OPENVPN ===================
 softether_option_openvpn: True
 softether_openvpn_port: 1194
-softether_openvpn_config: "{{softether_home}}/generated/openvpn_config.zip"
+softether_openvpn_config: "{{softether_bin_dir}}/generated/openvpn_config.zip"
 # /============== OPENVPN ===================
 
 
@@ -118,7 +118,7 @@ roles:
          # ============== OPENVPN ===================
          softether_option_openvpn: true,
          softether_openvpn_port: 1194,
-         softether_openvpn_config: "{{softether_home}}/generated/openvpn_config.zip",
+         softether_openvpn_config: "{{softether_bin_dir}}/generated/openvpn_config.zip",
          # /============== OPENVPN ===================
 
 
