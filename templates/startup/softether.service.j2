@@ -1,13 +1,13 @@
 [Unit]
 Description=SoftEther VPN Server
 After=network.target auditd.service
-ConditionPathExists=!{{ softether_home }}/do_not_run
+ConditionPathExists=!{{ softether_bin_dir }}/do_not_run
 
 [Service]
 Type=forking
-EnvironmentFile=-{{ softether_home }}
-ExecStart={{ softether_home }}/vpnserver start
-ExecStop={{ softether_home}}/vpnserver stop
+EnvironmentFile=-{{ softether_bin_dir }}
+ExecStart={{ softether_bin_dir }}/vpnserver start
+ExecStop={{ softether_bin_dir}}/vpnserver stop
 KillMode=process
 Restart=on-failure
 
@@ -16,7 +16,7 @@ PrivateTmp=yes
 ProtectHome=yes
 ProtectSystem=full
 ReadOnlyDirectories=/
-ReadWriteDirectories=-{{ softether_home }}
+ReadWriteDirectories=-{{ softether_bin_dir }}
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_RAW CAP_SYS_NICE CAP_SYS_ADMIN CAP_SETUID
 
 [Install]

@@ -8,7 +8,7 @@
 # Short-Description: Start daemon at boot time
 # Description: Enable Softether by daemon.
 ### END INIT INFO
-DAEMON={{ softether_home }}/vpnserver
+DAEMON={{ softether_bin_dir }}/vpnserver
 LOCK=/var/lock/subsys/vpnserver
 test -x $DAEMON || exit 0
 case "$1" in
