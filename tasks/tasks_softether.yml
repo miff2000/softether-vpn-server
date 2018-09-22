@@ -89,18 +89,24 @@
       state: absent
     when: option_cleanup_old_files
 
-  - name: SoftEther | Disable gcc's PIE in the Makefile
-    shell: sed -i 's/^CC=gcc/CC=gcc -no-pie/' Makefile
-    args:
-      chdir: "{{ binary_build_path }}/vpnserver"
+  - name: SoftEther | Disable gcc's PIE in the Makefile (replace)
+    replace:
+      path: "{{ binary_build_path }}/vpnserver/Makefile"
+      regexp: "^CC=gcc$"
+      replace: "CC=gcc -no-pie"
     when: (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic')
+
+  # - name: SoftEther | Disable gcc's PIE in the Makefile (sed)
+  #   shell: sed -i 's/^CC=gcc/CC=gcc -no-pie/' Makefile
+  #   args:
+  #     chdir: "{{ binary_build_path }}/vpnserver"
+  #   when: (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic')
 
   - name: SoftEther | Make binary from source. 'yes 1' accepts the EULA
     shell: yes 1 | make
     args:
       chdir: "{{ binary_build_path }}/vpnserver"
-    creates:
-      /tmp/vpnserver/vpnserver
+      creates: /tmp/vpnserver/vpnserver
     tags:
       - softether
 
