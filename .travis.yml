@@ -58,8 +58,6 @@ services:
   - docker
 
 before_install:
-  # Ensure we don't run Travis if we're only changing Markdown files
-  - bash ./.travis-preflight.sh
   # Pull container
   - 'sudo docker pull ${distribution}:${version}'
   # Customize container
