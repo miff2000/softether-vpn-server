@@ -5,7 +5,7 @@
 ## Usage
 The basic steps are:
 * Log onto a Linux machine, which will be your Ansible control host
-* Install Ansible on it
+* Install Ansible 2.6 or above on it
 > If you're using a CentOS server, you can just add the [EPEL](https://fedoraproject.org/wiki/EPEL) repo following the instructions on that link.
 * Pull the Ansible Galaxy package onto your control host. This will download the package into `~/.ansible/roles/miff2000.softether-vpn-server`
 ```bash
@@ -35,9 +35,11 @@ roles:
       softether_ipsec_presharedkey: "{{my_softether_ipsec_presharedkey}}"
     }
 ```
+> Any options specified in the **Ansible Playbook** or `vars/vars.yml` will override the defaults in `defaults/main.yml`
+
 > The above is the very minimum you should specify. You can leave `my_softether_ipsec_presharedkey` as default if you're not planning to use IPSEC. In that case you should disable it with `softether_option_ipsec: false` somewhere in the `role` section above. Remember to add a `,` to the end of all but the last config option
 
-> Full config options are in [defaults/main.yml](defaults/main.yml). In all cases but `softether_vpn_users` you can probably leave the defaults
+> **Full config options** are in [defaults/main.yml](defaults/main.yml). In the case of all options except `softether_vpn_users`, you can probably leave the defaults
 * If you prefer to keep the variables separate from the playbook, you can create a `vars/vars.yml` file with options in. For example:
 
 ```YAML
