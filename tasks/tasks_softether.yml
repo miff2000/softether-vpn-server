@@ -134,7 +134,7 @@
   - name: SoftEther | Install upstart init script
     template:
       src: "{{ role_path }}/templates/startup/softether.init.j2"
-      dest: /etc/init.d/vpnserver
+      dest: /etc/init.d/softether
       mode: 0755
     when: upstart_system == "upstart"
     become: yes
@@ -144,7 +144,7 @@
   - name: SoftEther | Install systemd init script
     template:
       src: "{{ role_path }}/templates/startup/softether.service.j2"
-      dest: /etc/systemd/system/vpnserver.service
+      dest: /etc/systemd/system/softether.service
       mode: 0755
     when: upstart_system == "systemd"
     become: yes
