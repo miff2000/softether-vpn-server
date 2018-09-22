@@ -2,10 +2,10 @@
 FROM centos:6
 RUN rpm -iUvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
 
-# Install Ansible
-RUN yum -y install ansible
-RUN mkdir -p /etc/ansible
+# Install Ansible and initscripts (removed in later centos:6 builds)
+RUN yum -y install ansible initscripts
 
 # Install Ansible inventory file
-RUN echo "[local]" > /etc/ansible/hosts
-RUN echo "localhost ansible_connection=local" >> /etc/ansible/hosts
+RUN mkdir -p /etc/ansible && \
+    echo "[local]" > /etc/ansible/hosts && \
+    echo "localhost ansible_connection=local" >> /etc/ansible/hosts
