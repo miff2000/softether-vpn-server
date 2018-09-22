@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 
 # Install Ansible
 RUN apt-get update
-RUN apt-get upgrade
+RUN apt-get upgrade -y
 RUN apt-get install -y software-properties-common git python-dev wget apt-transport-https libffi-dev libssl-dev
 RUN apt-get install -y python-pip
 RUN pip install -U pip
