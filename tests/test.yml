@@ -19,6 +19,18 @@
         update_cache: true
       when: multiverse_installed is changed
 
+    - name: Ensure build dependencies are installed (RedHat)
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "@Development tools"
+        - tar
+        - unzip
+        - sudo
+        - which
+      when: ansible_os_family == 'RedHat'
+
   roles:
     - {
         role: "role_under_test",
