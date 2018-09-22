@@ -38,17 +38,17 @@ env:
     run_opts: "--privileged=true"
     playbook: test.yml
   - distribution: centos
-    version: 7
-    init: /usr/lib/systemd/systemd
-    run_opts: "--privileged"
-    playbook: test.yml
-  - distribution: centos
     version: 6
     init: /sbin/init
     run_opts: "--privileged"
     playbook: test.yml
+  - distribution: centos
+    version: 7
+    init: /usr/lib/systemd/systemd
+    run_opts: "--privileged"
+    playbook: test.yml
 
-# whitelist
+# Specify branches to build
 branches:
   only:
     - master
