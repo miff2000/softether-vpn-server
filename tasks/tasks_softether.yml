@@ -90,10 +90,9 @@
     when: option_cleanup_old_files
 
   - name: SoftEther | Disable gcc's PIE in the Makefile
-    replace:
-      path: "{{ binary_build_path }}/vpnserver/Makefile"
-      regexp: '^CC=gcc$'
-      replace: "\1CC=gcc -no-pie\2"
+    shell: sed -i 's/^CC=gcc/CC=gcc -no-pie/' Makefile
+    args:
+      chdir: "{{ binary_build_path }}/vpnserver"
     when: (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic')
 
   - name: SoftEther | Make binary from source. 'yes 1' accepts the EULA
