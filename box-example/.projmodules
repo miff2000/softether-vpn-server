@@ -1,4 +1,0 @@
-[submodule "roles/softether-vpn-server"]
-        path = roles/softether-vpn-server
-        url = https://github.com/miff2000/softether-vpn-server.git
-
