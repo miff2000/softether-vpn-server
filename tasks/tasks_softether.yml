@@ -33,6 +33,7 @@
         - readline
         - ncurses
         - rsync
+        - grep
     when: not existing_binaries.stat.exists
     tags:
         - softether
