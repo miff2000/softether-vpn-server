@@ -1,4 +1,2 @@
-box-example/roles
-*.retry
-tempfile
-local*.sh
+.travis-preflight.sh
+.vscode
