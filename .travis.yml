@@ -10,12 +10,12 @@ env:
   - distribution: ubuntu
     version: 16.04
     init: /bin/systemd
-    run_opts: ""
+    run_opts: "--privileged=true"
     playbook: test.yml
   - distribution: fedora
     version: 25
     init: /usr/sbin/init
-    run_opts: ""
+    run_opts: "--privileged=true"
     playbook: test.yml
   - distribution: centos
     version: 7
