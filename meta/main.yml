@@ -22,21 +22,19 @@ galaxy_info:
         - 6
         - 7
   galaxy_tags:
-    - SoftEther
     - softether
-    - VPN
     - vpn
-    - L2TP
-    - IPsec
-    - OpenVPN 
-    - MS-SSTP
+    - l2tp
+    - ipsec
+    - openvpn
+    - ms-sstp
     - L2TPv3
-    - Server
-    - Ubuntu
-    - CentOS
-    - Fedora
+    - server
+    - ubuntu
+    - centos
+    - fedora
   categories:
-  - networking
+    - networking
 
 #platforms:
   #- name: EL
