@@ -39,6 +39,12 @@
         - softether
   when: ansible_os_family == "RedHat"
 
+- name: Add /usr/bin dir to system-wide $PATH | TESTING ONLY.
+  copy:
+    dest: /etc/profile.d/custom-path.sh
+    content: "PATH=$PATH:/usr/bin"
+  when: docker_test
+    
 - name: SoftEther | Install package dependencies
   package:
     pkg: "{{ item }}"
