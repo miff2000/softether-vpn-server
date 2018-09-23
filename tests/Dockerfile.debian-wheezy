@@ -13,5 +13,5 @@ RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python
 
 # Install Ansible inventory file and initctl_faker
 COPY initctl_faker .
-RUN chmod +x initctl_faker && rm -fr /sbin/initctl && ln -s /initctl_faker /sbin/initctl
-RUN echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
+RUN chmod +x initctl_faker && rm -fr /sbin/initctl && ln -s /initctl_faker /sbin/initctl && \
+echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts

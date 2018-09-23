@@ -3,8 +3,7 @@ FROM fedora:27
 
 # Install Ansible
 RUN dnf -y update && \
-    dnf install -y python2 python2-dnf libselinux-python procps-ng && \
-    dnf -y install ansible && \
+    dnf install -y python2 python2-dnf libselinux-python procps-ng ansible && \
     mkdir -p /etc/ansible
 
 # Install Ansible inventory file
