@@ -4,7 +4,7 @@ FROM ubuntu:18.04
 # Install Ansible
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y software-properties-common git python-dev wget apt-transport-https libffi-dev libssl-dev python-pip && \
+    apt-get install -y software-properties-common git python-dev wget apt-transport-https libffi-dev libssl-dev python-pip systemd && \
     pip install -U pip ansible && \
     mkdir -p /etc/ansible
 
