@@ -1,0 +1,17 @@
+
+FROM debian:stretch
+
+# Install Ansible
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y software-properties-common git python-dev wget apt-transport-https libffi-dev libssl-dev python-pip systemd && \
+    pip install -U pip ansible && \
+    mkdir -p /etc/ansible
+
+# setup tools 3.3 conflict
+#RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python
+
+# Install Ansible inventory file and initctl_faker
+COPY initctl_faker .
+RUN chmod +x initctl_faker && rm -fr /sbin/initctl && ln -s /initctl_faker /sbin/initctl
+RUN echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts

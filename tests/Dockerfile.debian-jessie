@@ -1,0 +1,18 @@
+
+FROM debian:jessie
+
+# Install Ansible
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install -y software-properties-common curl git python-dev wget apt-transport-https libffi-dev libssl-dev && \
+    apt-get install -y python-pip && \
+    pip install -U pip && \
+    pip install -U setuptools && \
+    pip install ansible && \
+    mkdir -p /etc/ansible
+
+# setup tools 3.3 conflict
+RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python
+
+# Install Ansible inventory file
+RUN echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
