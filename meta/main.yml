@@ -2,9 +2,9 @@
 galaxy_info:
   author: Matt Calvert
   description: SoftEther Multi-Protocol VPN Server. Credits to Vyacheslav Voronenko who wrote the original Ansible role this was forked from
-  company: http://miff2000.github.io
+  issue_tracker_url: https://github.com/miff2000/softether-vpn-server/issues
   license: MIT
-  min_ansible_version: 2.6.0.0
+  min_ansible_version: 2.6
   platforms:
     - name: Ubuntu
       versions:
@@ -18,6 +18,10 @@ galaxy_info:
         - 27
         - 28
     - name: EL
+      versions:
+        - 6
+        - 7
+    - name: CentOS
       versions:
         - 6
         - 7
