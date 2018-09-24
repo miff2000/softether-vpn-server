@@ -5,7 +5,8 @@ FROM debian:jessie
 RUN apt-get update -y && \
     apt-get upgrade -y && \
     apt-get install -y software-properties-common curl git python-dev wget apt-transport-https libffi-dev libssl-dev python-pip && \
-    pip install -U pip setuptools ansible && \
+    pip install -U pip setuptools && \
+    pip install -U ansible && \
     mkdir -p /etc/ansible
 
 # setup tools 3.3 conflict
