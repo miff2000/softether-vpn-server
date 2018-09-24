@@ -17,11 +17,11 @@ env:
     init: /bin/systemd
     run_opts: "--privileged=true"
     playbook: test.yml
-  - distribution: debian
-    version: wheezy
-    init: /sbin/init
-    run_opts: "--privileged=true"
-    playbook: test.yml
+  # - distribution: debian
+  #   version: wheezy
+  #   init: /sbin/init
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
   - distribution: debian
     version: jessie
     init: /bin/systemd
