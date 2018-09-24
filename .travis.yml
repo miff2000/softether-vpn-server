@@ -2,6 +2,7 @@
 sudo: required
 
 env:
+  # Ubuntu
   - distribution: ubuntu
     version: 14.04
     init: /sbin/init
@@ -17,11 +18,12 @@ env:
     init: /bin/systemd
     run_opts: "--privileged=true"
     playbook: test.yml
-  # - distribution: debian
-  #   version: wheezy
-  #   init: /sbin/init
-  #   run_opts: "--privileged=true"
-  #   playbook: test.yml
+  # Debian
+  - distribution: debian
+    version: wheezy
+    init: /sbin/init
+    run_opts: "--privileged=true"
+    playbook: test.yml
   - distribution: debian
     version: jessie
     init: /bin/systemd
@@ -37,6 +39,7 @@ env:
     init: /bin/systemd
     run_opts: "--privileged=true"
     playbook: test.yml
+  # Fedora
   - distribution: fedora
     version: 25
     init: /usr/sbin/init
@@ -57,6 +60,7 @@ env:
     init: /usr/sbin/init
     run_opts: "--privileged=true"
     playbook: test.yml
+  # CentOS
   - distribution: centos
     version: 6
     init: /sbin/init
@@ -66,6 +70,27 @@ env:
     version: 7
     init: /usr/lib/systemd/systemd
     run_opts: "--privileged"
+    playbook: test.yml
+  # Alpine
+  - distribution: alpine
+    version: 3.4
+    init: /sbin/init
+    playbook: test.yml
+  - distribution: alpine
+    version: 3.5
+    init: /sbin/init
+    playbook: test.yml
+  - distribution: alpine
+    version: 3.6
+    init: /sbin/init
+    playbook: test.yml
+  - distribution: alpine
+    version: 3.7
+    init: /sbin/init
+    playbook: test.yml
+  - distribution: alpine
+    version: 3.8
+    init: /sbin/init
     playbook: test.yml
 
 # Specify branches to build
@@ -82,8 +107,6 @@ before_install:
   - 'sudo docker pull ${distribution}:${version}'
   # Customize container
   - 'sudo docker build --rm=true --file=tests/Dockerfile.${distribution}-${version} --tag=${distribution}-${version}:ansible tests'
-  - 'sudo docker run --rm --privileged -v /:/host ${distribution}-${version}:ansible setup || true'
-  - 'sudo mkdir -p /tmp/cgroup/systemd && sudo mount -t cgroup systemd /tmp/cgroup/systemd -o ro,noexec,nosuid,nodev,none,name=systemd'
 
 script:
   # Generate a temporary file to record the container ID

@@ -19,11 +19,10 @@ RUN echo "===> (temporary) Installing sudo ..."  && \
     \
     echo "===> Removing package list..."  && \
     apk del build-dependencies            && \
-    rm -rf /var/cache/apk/*
-
-RUN mkdir -p /etc/ansible
+    rm -rf /var/cache/apk/* && \
+    mkdir -p /etc/ansible
 
 # Install Ansible inventory file
-RUN echo "[local]" > /etc/ansible/hosts
-RUN echo "localhost ansible_connection=local" >> /etc/ansible/hosts
+RUN echo "[local]" > /etc/ansible/hosts && \
+    echo "localhost ansible_connection=local" >> /etc/ansible/hosts
 
