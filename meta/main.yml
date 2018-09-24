@@ -21,24 +21,21 @@ galaxy_info:
       versions:
         - 6
         - 7
-    - name: CentOS
-      versions:
-        - 6
-        - 7
   galaxy_tags:
     - softether
     - vpn
     - l2tp
     - ipsec
     - openvpn
-    - ms-sstp
-    - L2TPv3
+    - mssstp
+    - l2tpv3
     - server
     - ubuntu
     - centos
     - fedora
-  categories:
     - networking
+  dependencies: []
+
 
 #platforms:
   #- name: EL
@@ -167,7 +164,7 @@ galaxy_info:
   # Below are all categories currently available. Just as with
   # the platforms above, uncomment those that apply to your role.
   #
-  #categories:
+  #galaxy_tags:
   #- cloud
   #- cloud:ec2
   #- cloud:gce
