@@ -1,0 +1,65 @@
+{# This is the default hub included #}
+HubDelete vpn
+
+HubCreate {{ softether_hub_name }} /PASSWORD:"{{ softether_hub_password }}"
+
+Hub {{ softether_hub_name }}
+
+{% if softether_option_securenat %}
+SecureNatEnable
+{% else %}
+SecureNatDisable
+{% endif %}
+
+{% if option_setup_letsencrypt %}
+ServerCertSet /LOADCERT:/etc/letsencrypt/live/{{ softether_fqdn }}/fullchain.pem /LOADKEY:/etc/letsencrypt/live/{{ softether_fqdn }}/privkey.pem
+{% else %}
+ServerCertRegenerate {{ softether_fqdn }}
+ServerCertGet ./generated/cert.cer
+{% endif %}
+
+
+{% if softether_option_local_bridge %}
+BridgeCreate {{ softether_hub_name }} /DEVICE:{{ softether_bridge_device }} /TAP:{{ softether_bridge_tap }}
+{% endif %}
+
+{% for vpnuser in softether_vpn_users %}
+UserCreate {{ vpnuser.name }} /GROUP:none /REALNAME:"{{ vpnuser.realname if vpnuser.realname is defined else "NONE"}}" /NOTE:none
+UserPasswordSet {{ vpnuser.name }} /PASSWORD:{{ vpnuser.password }}
+{% endfor %}
+
+{% if softether_option_ipsec %}
+IPsecEnable /L2TP:{{ softether_ipsec_l2tp }} /L2TPRAW:{{ softether_ipsec_l2tpraw }} /ETHERIP:{{ softether_ipsec_etherip }} /PSK:{{ softether_ipsec_presharedkey }} /DEFAULTHUB:{{ softether_hub_name }}
+{% endif %}
+
+{% if softether_option_openvpn %}
+OpenVpnEnable yes /PORTS:{{ softether_openvpn_port }}}
+OpenVpnMakeConfig ./generated/openvpn_config.zip
+{% else %}
+OpenVpnEnable no /{{ softether_openvpn_port }}
+ListenerDisable {{ softether_openvpn_port }}
+{% endif %}
+
+{% if softether_option_sstp %}
+SstpEnable yes
+{% else %}
+SstpEnable no 
+{% endif %}
+
+ListenerDisable 992
+ListenerDisable 5555
+
+{% if softether_option_split_routing %}
+DhcpSet /START:{{ softether_dhcp_range_start }} /END:{{ softether_dhcp_range_finish }} /MASK:{{ softether_dhcp_netmask }} /DNS:{{ softether_dhcp_dns1 }} /DNS2:{{ softether_dhcp_dns2 }} /GW:none /EXPIRE:7200 /DOMAIN:none /LOG:yes
+{%- if softether_push_routes is defined %}
+ /PUSHROUTE:"
+{%- for push_route in softether_push_routes %}{{ push_route.network }}/{{ push_route.netmask }}/{{ push_route.gateway }}
+{%- if not loop.last %}
+,
+{%- endif %}
+{%- endfor %}
+"
+{%- endif %}
+{% else %}
+DhcpSet /START:{{ softether_dhcp_range_start }} /END:{{ softether_dhcp_range_finish }} /MASK:{{ softether_dhcp_netmask }} /DNS:{{ softether_dhcp_dns1 }} /DNS2:{{ softether_dhcp_dns2 }} /GW:{{ softether_dhcp_gateway }} /EXPIRE:7200 /DOMAIN:none /LOG:yes
+{% endif %}

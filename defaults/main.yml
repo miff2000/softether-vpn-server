@@ -1,59 +1,112 @@
 ---
-# defaults file for sa-vpn-softether
 
-role_dir: "{{role_path}}"
+# /=====================================
+# Defaults file for softether-vpn-server
+# =====================================/
 
-# set true to add {{softether_home}} to PATH env via /etc/profile.d/softether.sh
-option_add_to_path: false
 
-#SecureNAT is a combination of Virtual NAT and DHCP Server function. You can enable SecureNAT using the command below:
+# Set true to add {{ softether_bin_dir }} to PATH env via /etc/profile.d/softether.sh
+option_add_to_path: False
+
+# This will wipe out any existing config in the VPN server, so be careful
+option_reset_softether_config: True
+
+# This will force new binaries to be created
+option_build_new_binaries: True
+
+# This will clean up the downloaded source zip and build files
+# Useful to set False for debugging
+option_cleanup_old_files: True
+
+# This will set up letsencrypt certificates on the server. {{ softether_fqdn }} will be used
+# Otherwise self-signed certs will be used
+option_setup_letsencrypt: True
+
+# As we are downloading source code and compiling to a binary, this overides the path to build the binaries in
+binary_build_path: /tmp
+
+# This was the latest version at the time this role was authored
+softether_binary_url: http://www.softether-download.com/files/softether/v4.25-9656-rtm-2018.01.15-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.25-9656-rtm-2018.01.15-linux-x64-64bit.tar.gz
+
+# SecureNAT is a combination of Virtual NAT and DHCP Server function. You can enable SecureNAT using the option below.
+# DON'T use this at the same time as LocalBridge (below)
 softether_option_securenat: true
-softether_option_bridge: false
 
-softether_location: /opt
-softether_home: "{{softether_location}}/vpnserver"
+# LocalBridge is another option that you can use
+# DON'T use this at the same time as SecureNAT (above)
+softether_option_local_bridge: false
+
+# This option will stop all traffic from being forced over the VPN.
+# If used, the DHCP scope MUST be set
+softether_option_split_routing: true
+
+# DHCP options. Make sure these don't conflict with any existing ranges you may have locally
+softether_dhcp_range_start: 192.168.30.10
+softether_dhcp_range_finish: 192.168.30.200
+softether_dhcp_netmask: 255.255.255.0
+softether_dhcp_gateway: 192.168.30.1
+softether_dhcp_dns1: 192.168.30.1
+softether_dhcp_dns2: 8.8.8.8
+
+# Routes to push out to clients via DHCP. This is needed if using split tunnelling
+softether_push_routes:
+  - network: 192.168.3.0
+    netmask: 255.255.255.0
+    gateway: 192.168.3.1
+  - network: 192.168.4.0
+    netmask: 255.255.255.0
+    gateway: 192.168.4.1
+
+# FQDN to use for SSL certificates
+softether_fqdn: "{{ ansible_host }}"
+
+### Default settings that can be overridden
+softether_hub_name: vpn
+softether_hub_password: "S3cureP4$$"
+
+# Change this to set a different binaries directory
+softether_bin_dir: "/opt/softether"
+
+# Set the language of the UI. Options are 'ja' (Japanese), 'en' (English), 'cn' (Simplified Chinese)
 softether_lang: en
-softether_fqdn: "{{ansible_host}}"
 
+# Enable / Disable SSTP
+softether_option_sstp: true
 
-# ============== IPSEC ===================
+# Enable / Disable IPSEC, and configs
 softether_option_ipsec: true
 softether_ipsec_l2tp: yes
 softether_ipsec_l2tpraw: yes
 softether_ipsec_etherip: no
 softether_ipsec_presharedkey: "[1KH;+r-X#cvhpv7Y6=#;[{u"
-# /============== IPSEC ===================
 
-
-# ============== OPENVPN ===================
+# Enable / Disable OpenVPN, and configs
 softether_option_openvpn: true
 softether_openvpn_port: 1194
-softether_openvpn_config: "{{softether_home}}/generated/openvpn_config.zip"
-# /============== OPENVPN ===================
+softether_openvpn_config: "{{softether_bin_dir}}/generated/openvpn_config.zip"
 
-
-
-# ============== Bridge ===================
+# Bridge defaults
 softether_bridge_device: soft
 softether_bridge_tap: no
-# ============== /Bridge ===================
 
-
-# ============== Users ===================
+# VPN Users section. Please DO override these! :)
 softether_vpn_users:
   - {
-      name: "test",
-      password: "test"
+      realname: User 1,
+      name: user1,
+      password: U4er1Pa55
     }
-# ============== /Users ===================
+  - {
+      name: user2,
+      password: U4er2Pa55
+    }
 
+# SysCtl control options. Multiple options can be specified, as above
 softether_sysctl_conf_lines:
   - {
-      name: 'net.ipv4.ip_forward',
-      value: '1'
+      name: net.ipv4.ip_forward,
+      value: 1
     }
 
-
-# =========== INIT SCENARIONS ===============
-
-softether_init_script: scenarios/create_hub
+# VPN config script. This is a Jinja2 template file which uses many of the options above
+softether_config_script: configs/create_hub

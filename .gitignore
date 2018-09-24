@@ -1,4 +1,1 @@
-box-example/roles
-*.retry
-tempfile
-local*.sh
+.vscode

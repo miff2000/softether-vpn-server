@@ -1,5 +1,5 @@
 ---
-  - name: USE | Detect upstart system
+  - name: Detect upstart system
     shell: |
       if [[ `/sbin/init --version 2> /dev/null` =~ upstart ]]; then echo upstart;
       elif [[ `systemctl` =~ -\.mount ]]; then echo systemd;
@@ -12,4 +12,7 @@
     register: upstart_detect_raw
 
   - set_fact:
-      upstart_system: "{{upstart_detect_raw.stdout}}"
+      upstart_system: "{{ upstart_detect_raw.stdout }}"
+
+  - debug: msg="Detected system to come with '{{ upstart_detect_raw.stdout }}'"
+

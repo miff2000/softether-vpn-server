@@ -1,5 +1,5 @@
 ---
 
-  - include_tasks: use/__detect_init_system.yml
+  - include: __detect_init_system.yml
 
   - include_tasks: tasks_softether.yml
