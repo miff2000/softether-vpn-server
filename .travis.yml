@@ -2,96 +2,96 @@
 sudo: required
 
 env:
-  # Ubuntu
-  - distribution: ubuntu
-    version: 14.04
-    init: /sbin/init
-    run_opts: ""
-    playbook: test.yml
-  - distribution: ubuntu
-    version: 16.04
-    init: /bin/systemd
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  - distribution: ubuntu
-    version: 18.04
-    init: /bin/systemd
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  # Debian
-  - distribution: debian
-    version: wheezy
-    init: /sbin/init
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  - distribution: debian
-    version: jessie
-    init: /bin/systemd
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  - distribution: debian
-    version: stretch
-    init: /bin/systemd
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  - distribution: debian
-    version: buster
-    init: /bin/systemd
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  # Fedora
-  - distribution: fedora
-    version: 25
-    init: /usr/sbin/init
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  - distribution: fedora
-    version: 26
-    init: /usr/sbin/init
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  - distribution: fedora
-    version: 27
-    init: /usr/sbin/init
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  - distribution: fedora
-    version: 28
-    init: /usr/sbin/init
-    run_opts: "--privileged=true"
-    playbook: test.yml
-  # CentOS
-  - distribution: centos
-    version: 6
-    init: /sbin/init
-    run_opts: "--privileged"
-    playbook: test.yml
-  - distribution: centos
-    version: 7
-    init: /usr/lib/systemd/systemd
-    run_opts: "--privileged"
-    playbook: test.yml
+  # # Ubuntu
+  # - distribution: ubuntu
+  #   version: 14.04
+  #   init: /sbin/init
+  #   run_opts: ""
+  #   playbook: test.yml
+  # - distribution: ubuntu
+  #   version: 16.04
+  #   init: /bin/systemd
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # - distribution: ubuntu
+  #   version: 18.04
+  #   init: /bin/systemd
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # # Debian
+  # - distribution: debian
+  #   version: wheezy
+  #   init: /sbin/init
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # - distribution: debian
+  #   version: jessie
+  #   init: /bin/systemd
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # - distribution: debian
+  #   version: stretch
+  #   init: /bin/systemd
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # - distribution: debian
+  #   version: buster
+  #   init: /bin/systemd
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # # Fedora
+  # - distribution: fedora
+  #   version: 25
+  #   init: /usr/sbin/init
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # - distribution: fedora
+  #   version: 26
+  #   init: /usr/sbin/init
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # - distribution: fedora
+  #   version: 27
+  #   init: /usr/sbin/init
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # - distribution: fedora
+  #   version: 28
+  #   init: /usr/sbin/init
+  #   run_opts: "--privileged=true"
+  #   playbook: test.yml
+  # # CentOS
+  # - distribution: centos
+  #   version: 6
+  #   init: /sbin/init
+  #   run_opts: "--privileged"
+  #   playbook: test.yml
+  # - distribution: centos
+  #   version: 7
+  #   init: /usr/lib/systemd/systemd
+  #   run_opts: "--privileged"
+  #   playbook: test.yml
   # Alpine
   - distribution: alpine
     version: 3.4
     init: /sbin/init
     playbook: test.yml
-  - distribution: alpine
-    version: 3.5
-    init: /sbin/init
-    playbook: test.yml
-  - distribution: alpine
-    version: 3.6
-    init: /sbin/init
-    playbook: test.yml
-  - distribution: alpine
-    version: 3.7
-    init: /sbin/init
-    playbook: test.yml
-  - distribution: alpine
-    version: 3.8
-    init: /sbin/init
-    playbook: test.yml
+  # - distribution: alpine
+  #   version: 3.5
+  #   init: /sbin/init
+  #   playbook: test.yml
+  # - distribution: alpine
+  #   version: 3.6
+  #   init: /sbin/init
+  #   playbook: test.yml
+  # - distribution: alpine
+  #   version: 3.7
+  #   init: /sbin/init
+  #   playbook: test.yml
+  # - distribution: alpine
+  #   version: 3.8
+  #   init: /sbin/init
+  #   playbook: test.yml
 
 # Specify branches to build
 branches:
