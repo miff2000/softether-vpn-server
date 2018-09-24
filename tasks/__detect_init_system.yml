@@ -1,18 +1,19 @@
 ---
-  - name: Detect upstart system
+  - name: Detect init system
     shell: |
       if [[ `/sbin/init --version 2> /dev/null` =~ upstart ]]; then echo upstart;
       elif [[ `systemctl` =~ -\.mount ]]; then echo systemd;
       elif [[ -f /etc/init.d/cron && ! -h /etc/init.d/cron ]]; then echo sysv-init;
+      elif [[ -f /sbin/openrc-run ]]; then echo openrc;
       else echo UNKNOWN;
       fi
     become: yes
     args:
       executable: /bin/bash
-    register: upstart_detect_raw
+    register: init_detect_raw
 
   - set_fact:
-      upstart_system: "{{ upstart_detect_raw.stdout }}"
+      init_system: "{{ init_detect_raw.stdout }}"
 
-  - debug: msg="Detected system to come with '{{ upstart_detect_raw.stdout }}'"
+  - debug: msg="Detected system to come with '{{ init_detect_raw.stdout }}'"
 

@@ -144,7 +144,7 @@
       src: "{{ role_path }}/templates/startup/softether.init.j2"
       dest: /etc/init.d/softether
       mode: 0755
-    when: upstart_system == "upstart"
+    when: init_system == "upstart"
     become: yes
     tags:
       - softether
@@ -154,7 +154,17 @@
       src: "{{ role_path }}/templates/startup/softether.service.j2"
       dest: /etc/systemd/system/softether.service
       mode: 0755
-    when: upstart_system == "systemd"
+    when: init_system == "systemd"
+    become: yes
+    tags:
+      - softether
+
+  - name: SoftEther | Install openrc init script
+    template:
+      src: "{{ role_path }}/templates/startup/softether.openrc.j2"
+      dest: /etc/init.d/softether
+      mode: 0755
+    when: init_system == "systemd"
     become: yes
     tags:
       - softether
@@ -162,7 +172,7 @@
   - name: SoftEther | Reload systemctl
     systemd:
       daemon_reload: yes
-    when: upstart_system == "systemd"
+    when: init_system == "systemd"
   when: option_build_new_binaries
 
 - name: SoftEther | Stop SoftEther
