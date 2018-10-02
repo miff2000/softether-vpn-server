@@ -3,6 +3,7 @@ HubDelete vpn
 
 HubCreate {{ softether_hub_name }} /PASSWORD:"{{ softether_hub_password }}"
 
+ServerPasswordSet "{{ softether_server_admin_password }}"
 Hub {{ softether_hub_name }}
 
 {% if softether_option_securenat %}
@@ -63,3 +64,5 @@ DhcpSet /START:{{ softether_dhcp_range_start }} /END:{{ softether_dhcp_range_fin
 {% else %}
 DhcpSet /START:{{ softether_dhcp_range_start }} /END:{{ softether_dhcp_range_finish }} /MASK:{{ softether_dhcp_netmask }} /DNS:{{ softether_dhcp_dns1 }} /DNS2:{{ softether_dhcp_dns2 }} /GW:{{ softether_dhcp_gateway }} /EXPIRE:7200 /DOMAIN:none /LOG:yes
 {% endif %}
+
+SecureNatHostSet /MAC:none /IP:{{ softether_dhcp_gateway }} /MASK:{{ softether_dhcp_netmask }}

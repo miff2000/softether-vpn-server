@@ -61,6 +61,7 @@ softether_push_routes:
 softether_fqdn: "{{ ansible_host }}"
 
 ### Default settings that can be overridden
+softether_server_admin_password: "U8erSeCur3"
 softether_hub_name: vpn
 softether_hub_password: "S3cureP4$$"
 
