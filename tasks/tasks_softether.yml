@@ -43,7 +43,7 @@
   copy:
     dest: /etc/profile.d/custom-path.sh
     content: "PATH=$PATH:/usr/bin"
-  when: docker_test
+  when: docker_test is defined and docker_test
     
 - name: SoftEther | Install package dependencies
   package:
