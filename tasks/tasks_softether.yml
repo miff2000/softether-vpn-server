@@ -164,7 +164,7 @@
       src: "{{ role_path }}/templates/startup/softether.openrc.j2"
       dest: /etc/init.d/softether
       mode: 0755
-    when: init_system == "systemd"
+    when: init_system == "openrc"
     become: yes
     tags:
       - softether
