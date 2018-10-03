@@ -5,7 +5,7 @@ FROM debian:wheezy
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y software-properties-common git python-dev \
-        wget apt-transport-https libffi-dev libssl-dev python-pip && \
+        wget apt-transport-https libffi-dev libssl-dev python-pip procps && \
     # pypi now requires PIP to use HTTPS, which isn't the default on Wheezy
     mkdir $HOME/.pip && \
     printf "[global]\ntimeout = 60\nindex-url = https://pypi.python.org/simple/" > $HOME/.pip/pip.conf && \
