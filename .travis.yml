@@ -3,11 +3,11 @@ sudo: required
 
 env:
   # # Ubuntu
-  # - distribution: ubuntu
-  #   version: 14.04
-  #   init: /sbin/init
-  #   run_opts: ""
-  #   playbook: test.yml
+  - distribution: ubuntu
+    version: 14.04
+    init: /sbin/init
+    run_opts: ""
+    playbook: test.yml
   # - distribution: ubuntu
   #   version: 16.04
   #   init: /bin/systemd
@@ -61,21 +61,21 @@ env:
   #   run_opts: "--privileged=true"
   #   playbook: test.yml
   # # CentOS
-  # - distribution: centos
-  #   version: 6
-  #   init: /sbin/init
-  #   run_opts: "--privileged"
-  #   playbook: test.yml
+  - distribution: centos
+    version: 6
+    init: /sbin/init
+    run_opts: "--privileged"
+    playbook: test.yml
   # - distribution: centos
   #   version: 7
   #   init: /usr/lib/systemd/systemd
   #   run_opts: "--privileged"
   #   playbook: test.yml
-  # Alpine
-  - distribution: alpine
-    version: 3.4
-    init: /sbin/init
-    playbook: test.yml
+  # # Alpine
+  # - distribution: alpine
+  #   version: 3.4
+  #   init: /sbin/init
+  #   playbook: test.yml
   # - distribution: alpine
   #   version: 3.5
   #   init: /sbin/init
@@ -123,7 +123,7 @@ script:
 
   # Test role idempotence
   - >
-    sudo docker exec "$(cat ${container_id})" env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook}
+    travis_wait sudo docker exec "$(cat ${container_id})" env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook}
     | grep -q 'unreachable=0.*failed=0'
     && (echo 'Idempotence test: pass' && exit 0)
     || (echo 'Idempotence test: fail' && exit 1)
