@@ -1,9 +1,19 @@
 ---
+  - name: Check /proc/1/exe
+    shell: readlink /proc/1/exe
+    become: yes
+    args:
+      executable: /bin/sh
+    register: proc1exe
+
+  - debug: msg="/proc/1/exe points to '{{ proc1exe.stdout }}'"
+
   - name: Detect init system
-    shell: |
+    shell: | 
+      init=`readlink /proc/1/exe`;
       if [[ `/sbin/init --version 2> /dev/null` =~ upstart ]]; then echo upstart;
       elif [[ `systemctl` =~ -\.mount ]]; then echo systemd;
-      elif [[ -f /etc/init.d/cron && ! -h /etc/init.d/cron ]]; then echo sysv-init;
+      elif [[ "$init" == "/sbin/init" ]]; then echo sysv-init;
       elif [[ -f /sbin/openrc-run ]]; then echo openrc;
       else echo UNKNOWN;
       fi
@@ -17,3 +27,4 @@
 
   - debug: msg="Detected system to come with '{{ init_detect_raw.stdout }}'"
 
+# readlink /proc/1/exe
