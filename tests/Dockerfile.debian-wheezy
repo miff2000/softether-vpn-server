@@ -4,12 +4,15 @@ FROM debian:wheezy
 # Install Ansible
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y software-properties-common git python-dev wget apt-transport-https libffi-dev libssl-dev python-pip && \
+    apt-get install -y software-properties-common git python-dev \
+        wget apt-transport-https libffi-dev libssl-dev python-pip && \
+    # pypi now requires PIP to use HTTPS, which isn't the default on Wheezy
+    mkdir $HOME/.pip && \
+    printf "[global]\ntimeout = 60\nindex-url = https://pypi.python.org/simple/" > $HOME/.pip/pip.conf && \
+    # Setuptools is too old by default too.
+    wget https://bootstrap.pypa.io/ez_setup.py -O - | python && \
     pip install -U pip ansible && \
     mkdir -p /etc/ansible
-
-# setup tools 3.3 conflict
-RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python
 
 # Install Ansible inventory file and initctl_faker
 COPY initctl_faker .
