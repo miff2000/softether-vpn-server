@@ -1,6 +1,11 @@
 ---
 # tasks file for softether-vpn-server
 
+- name: Show what Ansible detected as ansible_distribution_release
+  debug:
+    msg: "ansible_distribution_release == {{ ansible_distribution_release }}"
+  when: docker_test is defined and docker_test
+
 - name: SoftEther | Check vpnserver presence
   stat:
     path: "{{ softether_bin_dir }}/vpnserver"
@@ -94,7 +99,7 @@
       path: "{{ binary_build_path }}/vpnserver/Makefile"
       regexp: "^CC=gcc$"
       replace: "CC=gcc -no-pie"
-    when: ansible_distribution_release == 'bionic' or ansible_distribution_release == 'stretch'
+    when: ansible_distribution_release == 'bionic' or ansible_distribution_release == 'stretch' or ansible_distribution_release == 'buster'
 
   - name: SoftEther | Make binary from source. 'yes 1' accepts the EULA
     shell: yes 1 | make
