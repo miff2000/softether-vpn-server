@@ -6,7 +6,8 @@
       executable: /bin/sh
     register: proc1exe
 
-  - debug: msg="/proc/1/exe points to '{{ proc1exe.stdout }}'"
+  - debug:
+      msg: "/proc/1/exe points to '{{ proc1exe.stdout }}'"
 
   - name: Detect init system
     shell: | 
