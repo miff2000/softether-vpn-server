@@ -1,7 +1,7 @@
 ---
 # tasks file for softether-vpn-server
 
-- name: Show what Ansible detected as ansible_distribution_release
+- name: SoftEther | Show what Ansible detected as ansible_distribution_release
   debug:
     msg: "ansible_distribution_release == {{ ansible_distribution_release }}"
   when: docker_test is defined and docker_test
@@ -11,6 +11,14 @@
     path: "{{ softether_bin_dir }}/vpnserver"
   ignore_errors: yes
   register: existing_binaries
+  tags:
+      - softether
+
+- name: SoftEther | Check vpnserver config presence
+  stat:
+    path: "{{ softether_bin_dir }}/vpn_server.config"
+  ignore_errors: yes
+  register: existing_config
   tags:
       - softether
 
@@ -44,7 +52,7 @@
         - softether
   when: ansible_os_family == "RedHat"
 
-- name: Add /usr/bin dir to system-wide $PATH | TESTING ONLY.
+- name: SoftEther | Add /usr/bin dir to system-wide $PATH | TESTING ONLY.
   copy:
     dest: /etc/profile.d/custom-path.sh
     content: "PATH=$PATH:/usr/bin"
@@ -99,7 +107,7 @@
       path: "{{ binary_build_path }}/vpnserver/Makefile"
       regexp: "^CC=gcc$"
       replace: "CC=gcc -no-pie"
-    when: ansible_distribution_release == 'bionic' or ansible_distribution_release == 'stretch' or ansible_distribution_release == 'buster'
+    when: (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic') or (ansible_distribution == 'Debian' and ansible_distribution_release != 'jessie' and ansible_distribution_release != 'wheezy')
 
   - name: SoftEther | Make binary from source. 'yes 1' accepts the EULA
     shell: yes 1 | make
@@ -243,11 +251,21 @@
     - softether
     - config
 
-- name: SoftEther | Proceed with setup
+- name: SoftEther | Set up VPN server config
   shell: ./vpncmd localhost /server /IN:{{ softether_config_script }}
   args:
     chdir: "{{ softether_bin_dir }}"
   become: yes
+  when: not existing_binaries.stat.exists
+  tags:
+    - softether
+
+- name: SoftEther | Set up VPN server config, with password
+  shell: ./vpncmd localhost /server /IN:{{ softether_config_script }} /PASSWORD:{{ softether_server_admin_password }}
+  args:
+    chdir: "{{ softether_bin_dir }}"
+  become: yes
+  when: existing_binaries.stat.exists
   tags:
     - softether
 
