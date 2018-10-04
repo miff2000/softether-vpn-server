@@ -94,7 +94,7 @@
       path: "{{ binary_build_path }}/vpnserver/Makefile"
       regexp: "^CC=gcc$"
       replace: "CC=gcc -no-pie"
-    when: (ansible_distribution_release == 'bionic') or (ansible_distribution_release != 'jessie' and ansible_distribution_release != 'wheezy')
+    when: ansible_distribution_release == 'bionic' or ansible_distribution_release == 'buster' or ansible_distribution_release == 'stretch'
 
   - name: SoftEther | Make binary from source. 'yes 1' accepts the EULA
     shell: yes 1 | make
