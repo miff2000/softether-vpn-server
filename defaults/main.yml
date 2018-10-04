@@ -20,7 +20,7 @@ option_cleanup_old_files: True
 
 # This will set up letsencrypt certificates on the server. {{ softether_fqdn }} will be used
 # Otherwise self-signed certs will be used
-option_setup_letsencrypt: True
+option_setup_letsencrypt: False
 
 # As we are downloading source code and compiling to a binary, this overides the path to build the binaries in
 binary_build_path: /tmp

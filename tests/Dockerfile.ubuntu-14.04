@@ -4,10 +4,8 @@ FROM ubuntu:14.04
 # Install Ansible
 RUN apt-get update -y && \
     apt-get upgrade -y && \
-    apt-get install -y software-properties-common curl git python-dev wget apt-transport-https libffi-dev libssl-dev && \
-    apt-get install -y python-pip && \
-    pip install -U pip && \
-    pip install -U setuptools && \
+    apt-get install -y software-properties-common curl git python-dev wget apt-transport-https libffi-dev libssl-dev python-pip && \
+    pip install -U pip setuptools && \
     pip install ansible && \
     mkdir -p /etc/ansible
 
