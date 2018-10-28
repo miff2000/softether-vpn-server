@@ -21,6 +21,7 @@ option_cleanup_old_files: True
 # This will set up letsencrypt certificates on the server. {{ softether_fqdn }} will be used
 # Otherwise self-signed certs will be used
 option_setup_letsencrypt: False
+softether_fqdn: "{{ ansible_host }}"
 
 # As we are downloading source code and compiling to a binary, this overides the path to build the binaries in
 binary_build_path: /tmp
@@ -30,15 +31,32 @@ softether_binary_url: http://www.softether-download.com/files/softether/v4.25-96
 
 # SecureNAT is a combination of Virtual NAT and DHCP Server function. You can enable SecureNAT using the option below.
 # DON'T use this at the same time as LocalBridge (below)
-softether_option_securenat: true
+softether_option_securenat: True
 
 # LocalBridge is another option that you can use
 # DON'T use this at the same time as SecureNAT (above)
-softether_option_local_bridge: false
+softether_option_local_bridge: False
+softether_bridge_device: soft
+softether_bridge_tap: no
+
+# Enable / Disable SSTP
+softether_option_sstp: True
+
+# Enable / Disable IPSEC, and configs
+softether_option_ipsec: True
+softether_ipsec_l2tp: yes
+softether_ipsec_l2tpraw: yes
+softether_ipsec_etherip: no
+softether_ipsec_presharedkey: "[1KH;+r-X#cvhpv7Y6=#;[{u"
+
+# Enable / Disable OpenVPN, and configs
+softether_option_openvpn: True
+softether_openvpn_port: 1194
+softether_openvpn_config: "{{softether_bin_dir}}/generated/openvpn_config.zip"
 
 # This option will stop all traffic from being forced over the VPN.
 # If used, the DHCP scope MUST be set
-softether_option_split_routing: true
+softether_option_split_routing: True
 
 # DHCP options. Make sure these don't conflict with any existing ranges you may have locally
 softether_dhcp_range_start: 192.168.30.10
@@ -49,16 +67,14 @@ softether_dhcp_dns1: 192.168.30.1
 softether_dhcp_dns2: 8.8.8.8
 
 # Routes to push out to clients via DHCP. This is needed if using split tunnelling
+# softether_push_routes: [ network: 192.168.99.4, netmask: 255.255.255.0, gateway: 192.168.40.1 ]
 softether_push_routes:
   - network: 192.168.3.0
     netmask: 255.255.255.0
-    gateway: 192.168.3.1
+    gateway: 192.168.30.1
   - network: 192.168.4.0
     netmask: 255.255.255.0
-    gateway: 192.168.4.1
-
-# FQDN to use for SSL certificates
-softether_fqdn: "{{ ansible_host }}"
+    gateway: 192.168.30.1
 
 ### Default settings that can be overridden
 softether_server_admin_password: "U8erSeCur3"
@@ -71,24 +87,11 @@ softether_bin_dir: "/opt/softether"
 # Set the language of the UI. Options are 'ja' (Japanese), 'en' (English), 'cn' (Simplified Chinese)
 softether_lang: en
 
-# Enable / Disable SSTP
-softether_option_sstp: true
-
-# Enable / Disable IPSEC, and configs
-softether_option_ipsec: true
-softether_ipsec_l2tp: yes
-softether_ipsec_l2tpraw: yes
-softether_ipsec_etherip: no
-softether_ipsec_presharedkey: "[1KH;+r-X#cvhpv7Y6=#;[{u"
-
-# Enable / Disable OpenVPN, and configs
-softether_option_openvpn: true
-softether_openvpn_port: 1194
-softether_openvpn_config: "{{softether_bin_dir}}/generated/openvpn_config.zip"
-
-# Bridge defaults
-softether_bridge_device: soft
-softether_bridge_tap: no
+# Listener ports which are added by default and can be enabled, if required.
+softether_enable_listener_443: True
+softether_enable_listener_992: False
+softether_enable_listener_1194: "{{ softether_option_openvpn }}"
+softether_enable_listener_5555: False
 
 # VPN Users section. Please DO override these! :)
 softether_vpn_users:
