@@ -116,6 +116,10 @@ Two other potential solutions may be (these haven't been tested):
 * Configure `eth0` and `eth1` the other way round, so SoftEther will use 192.168.4.55 for SecureNAT
 * Use IPTables Masquerading to change the source IP to be 192.168.4.55 if the connection is going out of eth1
 
+### SSL Certificates and Lets Encrypt
+Presently the options to configure Let Encrypt, `option_setup_letsencrypt` and `softether_fqdn`, don't actually install or configure Let Encrypt for you. It will however, if you have set up `certbot` yourself and have a certificate in the default location, use that certificate in the VPN server config.
+
+I will be working on another role which works alongside this role to provision them for you (miff2000/ansible-letsencrypt).
 
 # Copyright and license
 
