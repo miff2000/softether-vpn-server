@@ -39,33 +39,31 @@ softether-ansible-test ansible_host=192.168.3.26 ansible_user=centos ansible_bec
         softether_ipsec_presharedkey: "{{my_softether_ipsec_presharedkey}}"
       }
 ```
+You'll see I've set up a separate `vars:` stanza, then used the values under `roles:`. This is due to the roles section not liking multi-dimensional arrays in its comma-separated list.
 > Any options specified in the **Ansible Playbook** or `vars/main.yml` will override the defaults in `defaults/main.yml`
 
 > The above is the very minimum you should specify. You can leave `my_softether_ipsec_presharedkey` as default if you're not planning to use IPSEC. In that case you should disable it with `softether_option_ipsec: false` somewhere in the `role` section above. Remember to add a `,` to the end of all but the last config option
 
-> **Full config options** are in [defaults/main.yml](defaults/main.yml). In the case of all options except `softether_vpn_users`, you can probably leave the defaults
+> **Full config options** are in [defaults/main.yml](defaults/main.yml), and I highly encourage you to have a look through. In the case of all options except `softether_vpn_users`, you can probably leave the defaults however
 
 * If you prefer to keep the variables separate from the playbook, you can create a `vars/main.yml` file with options in. For example:
 
 ```YAML
-softether_option_securenat: True
-softether_option_local_bridge: False
 option_reset_softether_config: True
-
-# Enable Split Routing (on by default)
-softether_option_split_routing: true
-
-# Set the FQDN to use
-softether_fqdn: "fqdn-pointing-to-softether-server.com"
-
-# Enable IPSec (default) and set options
-softether_option_ipsec: True
-softether_ipsec_l2tp: yes
-softether_ipsec_etherip: no
-softether_ipsec_presharedkey: "[1KH;+r-X#cvhpv7Y6=#;[{u"
-
-# Disable OpenVPN
+option_setup_letsencrypt: True
+softether_fqdn: 185.209.77.13.myservers.net
+softether_option_split_routing: True
+softether_dhcp_range_start: 192.168.40.10
+softether_dhcp_range_finish: 192.168.40.200
+softether_dhcp_netmask: 255.255.255.0
+softether_dhcp_gateway: 192.168.40.1
+softether_dhcp_dns1: 192.168.40.1
+softether_server_cipher: ECDHE-RSA-AES128-SHA256
+softether_option_securenat: True
+softether_option_ipsec: False
 softether_option_openvpn: False
+softether_option_local_bridge: False
+option_build_new_binaries: False
 
 # VPN users
 softether_vpn_users:
@@ -80,7 +78,7 @@ softether_vpn_users:
     }
 ```
 
-* If you do use a separate vars file, You'll then need to include that file in the playbook, like this:
+* If you do use a separate vars file, You'll then need to include that file in the playbook, like shown below. The name of the file doesn't need to be specific - it's just what you want to call it.
 ```YAML
 - hosts:
     - softether-servers
@@ -91,6 +89,37 @@ softether_vpn_users:
         role: "miff2000.softether-vpn-server"
       }
 ```
+
+## Known Issues
+### SecureNAT on multi-homed servers.
+One issue that I'm aware of is that SecureNAT will choose a server interface to NAT behind, and it will use that same interface IP regardless of which interface the traffic will be leaving. I believe it will choose `eth0` by default, but haven't had chance to confirm that logic.
+
+What this means in practice is, if you have something like this in place:
+```
++------------------+      +-----+      +---------------------------+
+| VPN Client       |      | F/W |      | SoftEther Server          |      +---------------------------+
++------------------+      |-----|      +-------------------------- +      | Remote Server             |
+|                  |      |--|  |      | Gateway: 192.168.3.1/24   |      +---------------------------+
+| VPN adapter IP:  | ---> |  |--| ---> | eth0 IP: 192.168.3.6/24   | ---> | Gateway: 192.168.4.1/24   |
+|   192.168.40.10  |      |--|  |      | eth1 IP: 192.168.4.55/24  |      | eth0 IP: 192.168.4.60/24  |
+|                  |      |  |--|      | VPN DHCP pool range:      |      +---------------------------+
+|                  |      |--|  |      |   192.168.40.0/24         |
++------------------+      +-----+      +---------------------------+
+```
+SecureNAT will have decided that when your VPN client tries to talk to the Remote Server (192.168.4.60), the packet it will reach the SoftEther Server, which will then NAT the source IP to 192.168.3.6. It'll then see that the destination is reachable from eth1, and so route the packet out of eth1 towards 192.168.4.60. However, as SecureNAT changed the source IP to be 192.168.3.6, and the remote gets the packet, builds its response, then replies back to 192.168.3.6. AS the server doesn't have an IP in that range, the Remote Server will send the response back via its Gateway instead, 192.168.4.1/24.
+
+This behaviour is described as asymmetric routing, and is not good news for stateful packet inspection or firewalling.
+
+The solution to this is to only have one IP address on the SoftEther Server (192.168.3.6/24 in our case), and to allow the Gateway to do its job in routing between the 192.168.3.0/24 and 192.168.4.0/24 networks.
+
+Two other potential solutions may be (these haven't been tested):
+* Configure `eth0` and `eth1` the other way round, so SoftEther will use 192.168.4.55 for SecureNAT
+* Use IPTables Masquerading to change the source IP to be 192.168.4.55 if the connection is going out of eth1
+
+### SSL Certificates and Lets Encrypt
+Presently the options to configure Let Encrypt, `option_setup_letsencrypt` and `softether_fqdn`, don't actually install or configure Let Encrypt for you. It will however, if you have set up `certbot` yourself and have a certificate in the default location, use that certificate in the VPN server config.
+
+I will be working on another role which works alongside this role to provision them for you (miff2000/ansible-letsencrypt).
 
 # Copyright and license
 
