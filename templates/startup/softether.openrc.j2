@@ -4,7 +4,7 @@ description="Starts and stops the SoftEther service"
 
 name=$RC_SVCNAME
 command="{{ softether_bin_dir }}/vpnserver"
-command_args=""
+command_args="start"
 pidfile="/run/$RC_SVCNAME/$RC_SVCNAME.pid"
 
 depend() {
