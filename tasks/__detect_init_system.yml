@@ -12,15 +12,15 @@
   - name: Detect init system
     shell: | 
       init=`readlink /proc/1/exe`;
-      if [[ `/sbin/init --version 2> /dev/null` =~ upstart ]]; then echo upstart;
-      elif [[ `systemctl` =~ -\.mount ]]; then echo systemd;
-      elif [[ "$init" == "/sbin/init" ]]; then echo sysv-init;
-      elif [[ -f /sbin/openrc-run ]]; then echo openrc;
+      if   [ "$init" = "/lib/systemd/systemd" ]]; then echo systemd;
+      elif [ "$init" = "/usr/lib/systemd/systemd" ]]; then echo systemd;
+      elif [ "$init" = "/sbin/init" ]; then echo sysv-init;
+      elif [ "$init" = "/bin/busybox" ]; then echo openrc;
       else echo UNKNOWN;
       fi
     become: yes
     args:
-      executable: /bin/bash
+      executable: /bin/sh
     register: init_detect_raw
 
   - set_fact:
