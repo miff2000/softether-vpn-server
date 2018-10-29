@@ -5,7 +5,8 @@ ENV container docker
 RUN apk --update add openrc python py-pip openssl ca-certificates tar make gcc musl-dev && \
     apk --update add --virtual build-dependencies python-dev libffi-dev \
         openssl-dev build-base && \
-    pip install --upgrade pip cffi ansible && \
+    pip install -U pip && \
+    pip install -U cffi ansible && \
     apk del build-dependencies && \
     rm -rf /var/cache/apk/* && \
     mkdir -p /etc/ansible
