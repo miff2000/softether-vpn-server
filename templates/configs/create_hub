@@ -69,4 +69,4 @@ DhcpSet /START:{{ softether_dhcp_range_start }} /END:{{ softether_dhcp_range_fin
 DhcpSet /START:{{ softether_dhcp_range_start }} /END:{{ softether_dhcp_range_finish }} /MASK:{{ softether_dhcp_netmask }} /DNS:{{ softether_dhcp_dns1 }} /DNS2:{{ softether_dhcp_dns2 }} /GW:{{ softether_dhcp_gateway }} /EXPIRE:7200 /DOMAIN:none /LOG:yes
 {% endif %}
 
-SecureNatHostSet /MAC:none /IP:{{ softether_dhcp_gateway }} /MASK:{{ softether_dhcp_netmask }}
+{# SecureNatHostSet /MAC:none /IP:{{ softether_dhcp_gateway }} /MASK:{{ softether_dhcp_netmask }} #}
