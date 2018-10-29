@@ -72,32 +72,38 @@ env:
     run_opts: "--privileged"
     playbook: test.yml
   # Alpine
-  # - distribution: alpine
-  #   version: 3.4
-  #   init: /sbin/init
-  #   playbook: test.yml
-  # - distribution: alpine
-  #   version: 3.5
-  #   init: /sbin/init
-  #   playbook: test.yml
-  # - distribution: alpine
-  #   version: 3.6
-  #   init: /sbin/init
-  #   playbook: test.yml
-  # - distribution: alpine
-  #   version: 3.7
-  #   init: /sbin/init
-  #   playbook: test.yml
-  # - distribution: alpine
-  #   version: 3.8
-  #   init: /sbin/init
-  #   playbook: test.yml
+  - distribution: alpine
+    version: 3.4
+    init: /sbin/init
+    playbook: test.yml
+    run_opts: "--volume=/sys/fs/cgroup:/sys/fs/cgroup:rw"
+  - distribution: alpine
+    version: 3.5
+    init: /sbin/init
+    playbook: test.yml
+    run_opts: "--volume=/sys/fs/cgroup:/sys/fs/cgroup:rw"
+  - distribution: alpine
+    version: 3.6
+    init: /sbin/init
+    playbook: test.yml
+    run_opts: "--volume=/sys/fs/cgroup:/sys/fs/cgroup:rw"
+  - distribution: alpine
+    version: 3.7
+    init: /sbin/init
+    playbook: test.yml
+    run_opts: "--volume=/sys/fs/cgroup:/sys/fs/cgroup:rw"
+  - distribution: alpine
+    version: 3.8
+    init: /sbin/init
+    playbook: test.yml
+    run_opts: "--volume=/sys/fs/cgroup:/sys/fs/cgroup:rw"
 
 # Specify branches to build
 branches:
   only:
     - master
     - develop
+    - AlpineSupport
 
 services:
   - docker
@@ -133,5 +139,5 @@ script:
 
 notifications:
   webhooks:
-    - https://galaxy.ansible.com/api/v1/notifications/
-    - https://fathomless-fjord-24024.herokuapp.com/notify
+    - https://galaxy.ansible.com/api/v1/notifications/ # Build status
+    - https://fathomless-fjord-24024.herokuapp.com/notify # Telegram
