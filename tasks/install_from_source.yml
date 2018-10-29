@@ -1,0 +1,87 @@
+---
+
+- name: Add Alpine packages needed to compile SoftEther
+  apk:
+    name: [ "git", "build-base", "binutils", "ncurses-dev", "readline-dev", "openssl-dev", "cmake", "rsync" ]
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: SoftEther | Clean up old build files
+  file:
+    path: "{{ binary_build_path }}/vpnserver"
+    state: absent
+
+- name: Clone the GIT repo
+  git:
+    repo: https://github.com/SoftEtherVPN/SoftEtherVPN.git
+    dest: "{{ binary_build_path }}/vpnserver"
+    update: yes
+
+- name: Clone the GIT submodules
+  shell: git submodule update --init --recursive
+  args:
+    chdir: "{{ binary_build_path }}/vpnserver"
+
+- name: Run `configure` step
+  shell: ./configure
+  args:
+    chdir: "{{ binary_build_path }}/vpnserver"
+  
+- name: Run `make` step
+  shell: make -C tmp
+  args:
+    chdir: "{{ binary_build_path }}/vpnserver"
+
+- name: SoftEther | Copy binary files into place
+  copy:
+    src: "{{ binary_build_path }}/vpnserver/build/{{ item }}"
+    dest: "{{ softether_bin_dir }}/{{ item }}"
+    remote_src: yes
+  with_items:
+    - vpnserver
+    - vpncmd
+    - hamcore.se2
+    
+- name: SoftEther | Copy library files into place
+  copy:
+    src: "{{ binary_build_path }}/vpnserver/build/{{ item }}"
+    dest: "/usr/local/lib/{{ item }}"
+    remote_src: yes
+  with_items:
+    - libcedar.so
+    - libmayaqua.so
+    
+- name: SoftEther | Copy language file into place
+  copy:
+    src: "{{ binary_build_path }}/vpnserver/src/bin/hamcore/lang.config"
+    dest: "{{ softether_bin_dir }}/lang.config"
+    remote_src: yes
+    
+- name: SoftEther | Install openrc init script
+  template:
+    src: "{{ role_path }}/templates/startup/softether.openrc.j2"
+    dest: /etc/init.d/softether
+    mode: 0755
+  when: init_system == "openrc"
+  become: yes
+
+- name: Create /etc/network/interfaces file for Alpine | TESTING ONLY.
+  copy:
+    src: "{{ role_path }}/tests/Alpine-interfaces"
+    dest: /etc/network/interfaces
+  when: docker_test is defined and docker_test
+
+- name: SoftEther | Clean up build files
+  file:
+    path: "{{ binary_build_path }}/vpnserver"
+    state: absent
+  when: option_cleanup_old_files
+
+- name: SoftEther | Set binary permissions (executable)
+  file:
+    path: "{{ softether_bin_dir }}/{{ item }}"
+    mode: 0744
+  with_items:
+    - vpnserver
+    - vpncmd
