@@ -6,6 +6,11 @@
     msg: "ansible_distribution_release == {{ ansible_distribution_release }}"
   when: docker_test is defined and docker_test
 
+- name: SoftEther | Show what Ansible detected as ansible_os_family
+  debug:
+    msg: "ansible_os_family == {{ ansible_os_family }}"
+  when: docker_test is defined and docker_test
+
 - name: SoftEther | Check vpnserver presence
   stat:
     path: "{{ softether_bin_dir }}/vpnserver"
@@ -78,6 +83,11 @@
   when: not existing_binaries.stat.exists
   tags:
     - softether
+
+- name: Softether | Alpine build from source
+  include: install_from_source.yml
+  when: ansible_os_family == "Alpine"
+
 - block:
   - name: SoftEther | Download distribution
     get_url:
@@ -152,12 +162,12 @@
     tags:
       - softether
 
-  - name: SoftEther | Install upstart init script
+  - name: SoftEther | Install sysv-init init script
     template:
       src: "{{ role_path }}/templates/startup/softether.init.j2"
       dest: /etc/init.d/softether
-      mode: 0755
-    when: init_system == "upstart" or init_system == "sysv-init"
+      mode: 0644
+    when: init_system == "sysv-init"
     become: yes
     tags:
       - softether
@@ -166,18 +176,8 @@
     template:
       src: "{{ role_path }}/templates/startup/softether.service.j2"
       dest: /etc/systemd/system/softether.service
-      mode: 0755
+      mode: 0644
     when: init_system == "systemd"
-    become: yes
-    tags:
-      - softether
-
-  - name: SoftEther | Install openrc init script
-    template:
-      src: "{{ role_path }}/templates/startup/softether.openrc.j2"
-      dest: /etc/init.d/softether
-      mode: 0755
-    when: init_system == "openrc"
     become: yes
     tags:
       - softether
@@ -186,7 +186,7 @@
     systemd:
       daemon_reload: yes
     when: init_system == "systemd"
-  when: option_build_new_binaries
+  when: option_build_new_binaries and ansible_os_family != "Alpine"
 
 - name: SoftEther | Stop SoftEther
   service:
@@ -256,18 +256,18 @@
   args:
     chdir: "{{ softether_bin_dir }}"
   become: yes
-  when: not existing_binaries.stat.exists
+  # when: not existing_binaries.stat.exists
   tags:
     - softether
 
-- name: SoftEther | Set up VPN server config, with password
-  shell: ./vpncmd localhost /server /IN:{{ softether_config_script }} /PASSWORD:{{ softether_server_admin_password }}
-  args:
-    chdir: "{{ softether_bin_dir }}"
-  become: yes
-  when: existing_binaries.stat.exists
-  tags:
-    - softether
+# - name: SoftEther | Set up VPN server config, with password
+#   shell: ./vpncmd localhost /server /IN:{{ softether_config_script }} /PASSWORD:{{ softether_server_admin_password }}
+#   args:
+#     chdir: "{{ softether_bin_dir }}"
+#   become: yes
+#   when: existing_binaries.stat.exists
+#   tags:
+#     - softether
 
 - name: SoftEther | Restart service
   service:
