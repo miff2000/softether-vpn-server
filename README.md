@@ -30,12 +30,12 @@ softether-ansible-test ansible_host=192.168.3.26 ansible_user=centos ansible_bec
 
   vars:
     softether_vpn_users:
-      - name: "my_user"
-        password: "my_password"
+      - name: my_user
+        password: my_password
     softether_ipsec_presharedkey: "[1KH;+r-X#cvhpv7Y6=#;[{u"
 
   roles:
-    - "miff2000.softether-vpn-server"
+    - miff2000.softether-vpn-server
 ```
 You'll see I've set up a separate `vars:` stanza to override the defaults, which is a nice way to see everything in one file.
 > Any options specified in the **Ansible Playbook** or `vars/main.yml` will override the defaults in `defaults/main.yml`
@@ -79,9 +79,7 @@ softether_vpn_users:
   vars_files:
     - vars/main.yml
   roles:
-    - {
-        role: "miff2000.softether-vpn-server"
-      }
+    - miff2000.softether-vpn-server
 ```
 
 ## Known Issues
