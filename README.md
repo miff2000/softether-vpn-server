@@ -111,7 +111,7 @@ Two other potential solutions may be (these have not been tested):
 ### SSL Certificates and Lets Encrypt
 Presently the options to configure Let Encrypt, `option_setup_letsencrypt` and `softether_fqdn`, don't actually install or configure Let Encrypt for you. It will however, if you have set up `certbot` yourself and have a certificate in the default location, use that certificate in the VPN server config.
 
-I will be working on another role which works alongside this role to provision them for you (https://github.com/miff2000/ansible-letsencrypt).
+I will be working on another role which works alongside this role to provision them for you [miff2000/ansible-letsencrypt](https://github.com/miff2000/ansible-letsencrypt).
 
 # Copyright and license
 
