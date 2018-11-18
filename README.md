@@ -84,7 +84,7 @@ softether_vpn_users:
 
 ## Known Issues
 ### SecureNAT on multi-homed servers.
-One issue that I'm aware of is that SecureNAT will choose a server interface to NAT behind, and it will use that same interface IP regardless of which interface the traffic will be leaving. I believe it will choose `eth0` by default, but haven't had chance to confirm that logic.
+One issue that I'm aware of is that SecureNAT will choose a server interface to NAT behind, and it will use that same interface IP address on the server regardless of which interface the routing table send the traffic out of. I believe it will choose `eth0` by default, but haven't had chance to confirm that logic.
 
 What this means in practice is, if you have something like this in place:
 ```
@@ -98,20 +98,20 @@ What this means in practice is, if you have something like this in place:
 |                  |      |--|  |      |   192.168.40.0/24         |
 +------------------+      +-----+      +---------------------------+
 ```
-SecureNAT will have decided that when your VPN client tries to talk to the Remote Server (192.168.4.60), the packet it will reach the SoftEther Server, which will then NAT the source IP to 192.168.3.6. It'll then see that the destination is reachable from eth1, and so route the packet out of eth1 towards 192.168.4.60. However, as SecureNAT changed the source IP to be 192.168.3.6, and the remote gets the packet, builds its response, then replies back to 192.168.3.6. AS the server doesn't have an IP in that range, the Remote Server will send the response back via its Gateway instead, 192.168.4.1/24.
+SecureNAT will have decided that when your VPN client tries to talk to the Remote Server (192.168.4.60), the packet will reach the SoftEther Server at IP 192.168.40.1. SoftEther will then NAT the source IP to 192.168.3.6, as that's the first IP on eth0. It'll then see that the destination is reachable via eth1, and so will send the packet out of eth1 towards 192.168.4.60. The Remote Server gets the packet and builds its response. However, as SecureNAT changed the source IP to be 192.168.3.6, which isn't a network that Remote Server is aware of, it then sends the response packet to 192.168.3.6 via its default Gateway, 192.168.4.1/24.
 
 This behaviour is described as asymmetric routing, and is not good news for stateful packet inspection or firewalling.
 
-The solution to this is to only have one IP address on the SoftEther Server (192.168.3.6/24 in our case), and to allow the Gateway to do its job in routing between the 192.168.3.0/24 and 192.168.4.0/24 networks.
+The easiest solution to this is to only have one IP address on the SoftEther Server (192.168.3.6/24 in our case), and to allow the Gateway to do its job in routing between the 192.168.3.0/24 and 192.168.4.0/24 networks.
 
-Two other potential solutions may be (these haven't been tested):
-* Configure `eth0` and `eth1` the other way round, so SoftEther will use 192.168.4.55 for SecureNAT
-* Use IPTables Masquerading to change the source IP to be 192.168.4.55 if the connection is going out of eth1
+Two other potential solutions may be (these have not been tested):
+* Configure `eth0` and `eth1` the other way round, so SoftEther will choose 192.168.4.55 for SecureNAT. That's fine if we don't need to reach 192.168.3.0/24 from the VPN.
+* Use IPTables Masquerading to change the source IP to be 192.168.4.55 if the connection is going out of eth1.
 
 ### SSL Certificates and Lets Encrypt
 Presently the options to configure Let Encrypt, `option_setup_letsencrypt` and `softether_fqdn`, don't actually install or configure Let Encrypt for you. It will however, if you have set up `certbot` yourself and have a certificate in the default location, use that certificate in the VPN server config.
 
-I will be working on another role which works alongside this role to provision them for you (miff2000/ansible-letsencrypt).
+I will be working on another role which works alongside this role to provision them for you (https://github.com/miff2000/ansible-letsencrypt).
 
 # Copyright and license
 
